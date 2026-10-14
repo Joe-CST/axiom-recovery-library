@@ -14,13 +14,14 @@ Recommended for the 256 GB edition.
 | Part | What to look for | Amazon |
 |---|---|---|
 | Computer | Raspberry Pi 4 Model B, 2 GB or more | [Search Amazon](https://www.amazon.com/s?k=Raspberry+Pi+4+Model+B) |
-| Storage | 256 GB high-endurance A2 microSD from a recognized manufacturer | [Search Amazon](https://www.amazon.com/s?k=256GB+high+endurance+A2+microSD) |
+| Budget storage | 256 GB A2/U3 microSD card | [Search Amazon](https://www.amazon.com/s?k=256GB+A2+U3+microSD+card) |
+| Premium storage | 256 GB high-endurance A2 microSD from a recognized manufacturer | [Search Amazon](https://www.amazon.com/s?k=256GB+high+endurance+A2+microSD+card) |
 | Cooling | Pi 4 case with heatsinks and fan | [Search Amazon](https://www.amazon.com/s?k=Raspberry+Pi+4+case+fan+heatsink) |
 | Power | 5.1 V, 3 A / 15 W USB-C supply intended for Pi 4 | [Search Amazon](https://www.amazon.com/s?k=Raspberry+Pi+4+official+15W+USB-C+power+supply) |
 | Network | Cat6 Ethernet cable | [Search Amazon](https://www.amazon.com/s?k=Cat6+Ethernet+cable) |
 | Storage box | Small IP67 hard case with pick-and-pluck foam | [Search Amazon](https://www.amazon.com/s?k=IP67+waterproof+hard+case+foam) |
 
-## Premium build: speed and durability
+## Premium build: maximum library
 
 Recommended for the 1 TB edition.
 
@@ -29,15 +30,15 @@ Recommended for the 1 TB edition.
 | Computer | Raspberry Pi 5, 8 GB | [Search Amazon](https://www.amazon.com/s?k=Raspberry+Pi+5+8GB) |
 | Cooling | Pi 5 active cooler or ventilated active-cooling case | [Search Amazon](https://www.amazon.com/s?k=Raspberry+Pi+5+active+cooler+case) |
 | Power | Official 27 W, 5.1 V / 5 A Pi 5 supply | [Search Amazon](https://www.amazon.com/s?k=Raspberry+Pi+5+official+27W+power+supply) |
-| Storage | Reliable 1 TB SATA SSD | [Search Amazon](https://www.amazon.com/s?k=1TB+SATA+SSD) |
-| SSD adapter | USB 3 UASP SATA enclosure with a short shielded cable | [Search Amazon](https://www.amazon.com/s?k=USB+3+UASP+SATA+SSD+enclosure) |
+| Budget storage | 1 TB A2/U3 microSD card | [Search Amazon](https://www.amazon.com/s?k=1TB+A2+U3+microSD+card) |
+| Premium storage | 1 TB A2/V30 microSD from a recognized manufacturer | [Search Amazon](https://www.amazon.com/s?k=1TB+A2+V30+microSD+card+SanDisk+Lexar+Kingston) |
 | Network | Cat6 Ethernet cable | [Search Amazon](https://www.amazon.com/s?k=Cat6+Ethernet+cable) |
 | Storage box | Pelican-style IP67 case with foam | [Search Amazon](https://www.amazon.com/s?k=Pelican+waterproof+case+foam) |
 
-Pi 5 should use the proper 27 W supply, especially with an SSD. Raspberry Pi's
-official guidance specifies 5 V at 5 A for Pi 5, 5 V at 3 A for Pi 4, and 5 V
-at 2.5 A for Pi 3. A weak supply can cause crashes, storage corruption, or USB
-devices disappearing.
+Pi 5 should use the proper 27 W supply during sustained downloads and indexing.
+Raspberry Pi's official guidance specifies 5 V at 5 A for Pi 5, 5 V at 3 A for
+Pi 4, and 5 V at 2.5 A for Pi 3. A weak supply can cause crashes or storage
+corruption.
 
 ## Solar and battery options
 
