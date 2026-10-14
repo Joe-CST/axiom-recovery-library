@@ -221,6 +221,20 @@ complete first boot before preparing multiple cards.
 maintained by [Jose Armando Costa](https://www.linkedin.com/in/jose-armando-costa),
 a **Senior Software Development Manager at Amazon Web Services (AWS)**.
 
+Jose creates practical, plain-English technology content that makes complex
+systems easier to understand, build, and use. His work includes step-by-step
+tutorials, open-source projects, hardware recommendations, architecture
+guidance, troubleshooting, security practices, and affordable alternatives for
+different budgets. He focuses on turning technical ideas into useful solutions
+for developers, makers, technology enthusiasts, families, and small
+organizations.
+
+Costa Axiom Recovery Library is one example of that work: an open-source
+project that turns a Raspberry Pi into an offline knowledge server and travel
+router. Across his work, Jose emphasizes accessibility, reliability,
+responsible engineering, and instructions people can confidently follow
+without advanced technical experience.
+
 - [Connect with Jose on LinkedIn](https://www.linkedin.com/in/jose-armando-costa)
 - [See more projects from Joe-CST on GitHub](https://github.com/Joe-CST)
 
