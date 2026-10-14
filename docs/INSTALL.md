@@ -28,7 +28,7 @@ on Pi 4 or Pi 5.
 Using a smaller edition on a larger drive is safe. The unused space remains
 available for personal documents.
 
-Download from the [v1.7.0 release page](https://github.com/Joe-CST/axiom-recovery-library/releases/tag/v1.7.0).
+Download from the [v1.7.1 release page](https://github.com/Joe-CST/axiom-recovery-library/releases/tag/v1.7.1).
 
 ## Step 2: verify the download
 
@@ -38,7 +38,7 @@ Verification is optional but strongly recommended. Download the matching
 ### Windows PowerShell
 
 ```powershell
-Get-FileHash .\Costa-Axiom-Pi3-Pi4-Pi5-256GB-v1.7.0.img.xz -Algorithm SHA256
+Get-FileHash .\Costa-Axiom-Pi3-Pi4-Pi5-256GB-v1.7.1.img.xz -Algorithm SHA256
 ```
 
 Compare the printed hash with the value inside the matching `.sha256` file.
@@ -46,7 +46,7 @@ Compare the printed hash with the value inside the matching `.sha256` file.
 ### macOS or Linux
 
 ```bash
-shasum -a 256 Costa-Axiom-Pi3-Pi4-Pi5-256GB-v1.7.0.img.xz
+shasum -a 256 Costa-Axiom-Pi3-Pi4-Pi5-256GB-v1.7.1.img.xz
 ```
 
 If the values differ, delete the file and download it again.

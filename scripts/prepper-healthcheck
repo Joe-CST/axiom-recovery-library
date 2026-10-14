@@ -5,6 +5,54 @@ OUT=/usr/share/prepper-portal/status.json
 TMP="${OUT}.tmp"
 CATALOG=/usr/share/prepper-portal/catalog.json
 PROGRESS=/var/lib/prepper-library/content-progress.json
+CONFIG=/etc/prepper-library/config.env
+HOTSPOT_IP=10.10.10.1
+if [[ -r "${CONFIG}" ]]; then
+  # shellcheck disable=SC1090
+  source "${CONFIG}"
+  HOTSPOT_IP="${HOTSPOT_ADDRESS%/*}"
+fi
+
+hotspot_connection_ready() {
+  nmcli -t -f NAME,DEVICE connection show --active 2>/dev/null | \
+    grep -Fxq 'prepper-hotspot:wlan0' &&
+    ip -4 -o address show dev wlan0 2>/dev/null | \
+      grep -Fq " ${HOTSPOT_IP}/" &&
+    iw dev wlan0 info 2>/dev/null | grep -Fq 'type AP'
+}
+
+portal_ready() {
+  systemctl is-active --quiet nginx &&
+    curl --fail --silent --show-error \
+      --interface wlan0 --connect-timeout 2 --max-time 5 \
+      "http://${HOTSPOT_IP}/" >/dev/null
+}
+
+if ! hotspot_connection_ready && [[ ${EUID} -eq 0 ]]; then
+  rfkill unblock wifi || true
+  nmcli radio wifi on || true
+  nmcli connection modify prepper-hotspot \
+    connection.autoconnect yes \
+    connection.autoconnect-retries 0 \
+    802-11-wireless.powersave 2 \
+    802-11-wireless.ap-isolation 0 \
+    wifi-sec.key-mgmt wpa-psk \
+    wifi-sec.proto rsn \
+    wifi-sec.pairwise ccmp \
+    wifi-sec.group ccmp \
+    wifi-sec.pmf disable || true
+  nmcli connection up prepper-hotspot ifname wlan0 || true
+  sleep 2
+fi
+
+if ! portal_ready && [[ ${EUID} -eq 0 ]]; then
+  systemctl restart nginx || true
+  sleep 1
+fi
+
+if hotspot_connection_ready; then HOTSPOT_STATE=ok; else HOTSPOT_STATE=attention; fi
+if portal_ready; then PORTAL_STATE=ok; else PORTAL_STATE=attention; fi
+
 /usr/local/sbin/prepper-build-catalog >/dev/null 2>&1 || true
 ZIM_COUNT="$(find /srv/prepper-library/kiwix -maxdepth 1 -type f -name '*.zim' | wc -l)"
 DOC_COUNT="$(find /srv/prepper-library/manuals -type f -name '*.pdf' | wc -l)"
@@ -63,11 +111,11 @@ service_state() {
 
 cat >"${TMP}" <<EOF
 {
-  "version": "1.7.0",
+  "version": "1.7.1",
   "generated": "$(date --iso-8601=seconds)",
   "hostname": "$(hostname)",
-  "hotspot": "$(service_state NetworkManager)",
-  "portal": "$(service_state nginx)",
+  "hotspot": "${HOTSPOT_STATE}",
+  "portal": "${PORTAL_STATE}",
   "kiwix": "$(service_state prepper-kiwix)",
   "zimCount": ${ZIM_COUNT},
   "expectedZimCount": ${EXPECTED_COLLECTIONS},

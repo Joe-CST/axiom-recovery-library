@@ -123,9 +123,16 @@ nmcli connection add type wifi ifname wlan0 con-name prepper-hotspot ssid "${HOT
 nmcli connection modify prepper-hotspot \
   connection.autoconnect yes \
   connection.autoconnect-priority 100 \
+  connection.autoconnect-retries 0 \
   802-11-wireless.mode ap \
   802-11-wireless.band bg \
+  802-11-wireless.powersave 2 \
+  802-11-wireless.ap-isolation 0 \
   wifi-sec.key-mgmt wpa-psk \
+  wifi-sec.proto rsn \
+  wifi-sec.pairwise ccmp \
+  wifi-sec.group ccmp \
+  wifi-sec.pmf disable \
   wifi-sec.psk "${HOTSPOT_PASSWORD}" \
   ipv4.method shared \
   ipv4.addresses "${HOTSPOT_ADDRESS}" \
@@ -148,6 +155,20 @@ for _attempt in $(seq 1 30); do
   sleep 2
 done
 [[ "${hotspot_ready}" == true ]] || die "The Wi-Fi hotspot could not be activated on wlan0."
+
+portal_ready=false
+for _attempt in $(seq 1 15); do
+  if curl --fail --silent --show-error \
+    --interface wlan0 --connect-timeout 2 --max-time 5 \
+    "http://${HOTSPOT_ADDRESS%/*}/" >/dev/null; then
+    portal_ready=true
+    break
+  fi
+  systemctl restart nginx || true
+  sleep 2
+done
+[[ "${portal_ready}" == true ]] || \
+  die "The local portal is not reachable through wlan0 at http://${HOTSPOT_ADDRESS%/*}/."
 
 qrencode -o /usr/share/prepper-portal/wifi-qr.png \
   "WIFI:T:WPA;S:${HOTSPOT_SSID};P:${HOTSPOT_PASSWORD};;"

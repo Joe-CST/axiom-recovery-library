@@ -34,4 +34,4 @@ jobs:
             scripts/prepper-build-catalog \
             tools/*.py
       - name: Confirm release version
-        run: test "$(cat VERSION)" = "1.7.0"
+        run: test "$(cat VERSION)" = "1.7.1"

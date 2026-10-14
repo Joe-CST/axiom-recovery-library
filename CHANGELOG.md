@@ -1,5 +1,22 @@
 # Changelog
 
+## 1.7.1 — 2026-10-14
+
+- Added automatic hotspot and portal recovery checks that test the actual
+  `wlan0` access point path instead of only checking whether services exist.
+- Disabled Wi-Fi power saving and pinned the hotspot to WPA2/RSN with CCMP for
+  more reliable phone connections.
+- Prevented overlapping Kiwix downloads from creating duplicate `.1.zim`
+  archives.
+- Made the Kiwix index resilient to an incomplete or duplicate archive so one
+  bad file cannot take the whole search service offline.
+- Kept archives out of the live Kiwix index until their download verification
+  marker exists.
+- Removed the full reindex from every Kiwix service start; downloads still
+  rebuild the index after verification, without making boot wait on huge files.
+- Added image-build verification for the hotspot, portal, downloader lock, and
+  resilient Kiwix indexer fixes.
+
 ## 1.7.0 — 2026-10-13
 
 - Added separate 256 GB, 512 GB, and 1 TB image editions.

@@ -175,6 +175,8 @@ def download(url: str, destination: Path) -> None:
             "--split=4",
             "--min-split-size=16M",
             "--file-allocation=none",
+            "--auto-file-renaming=false",
+            "--allow-overwrite=true",
             "--summary-interval=30",
             f"--user-agent={USER_AGENT}",
             f"--dir={destination.parent}",
@@ -204,6 +206,20 @@ def main() -> int:
     if not MANIFEST.exists():
         print(f"Missing manifest: {MANIFEST}", file=sys.stderr)
         return 2
+
+    # A manual download command and the automatic service must never write the
+    # same archive at the same time. aria2 otherwise creates a second `.1.zim`
+    # file, and that duplicate can prevent Kiwix from indexing every archive.
+    if not plan_only:
+        import fcntl
+
+        STATE_DIR.mkdir(parents=True, exist_ok=True)
+        lock_stream = (STATE_DIR / "kiwix-download.lock").open("w", encoding="utf-8")
+        try:
+            fcntl.flock(lock_stream.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except BlockingIOError:
+            print("Another Kiwix download is already running; leaving it in control.")
+            return 0
 
     if not plan_only:
         DESTINATION.mkdir(parents=True, exist_ok=True)

@@ -5,7 +5,6 @@ Wants=network.target
 
 [Service]
 Type=simple
-ExecStartPre=+/usr/local/sbin/prepper-reindex
 ExecStart=/usr/local/sbin/prepper-kiwix-start
 Restart=on-failure
 RestartSec=5

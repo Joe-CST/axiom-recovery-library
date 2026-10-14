@@ -1,6 +1,7 @@
 [Unit]
 Description=Update Prepper Library local health status
 After=NetworkManager.service nginx.service prepper-kiwix.service
+Wants=NetworkManager.service nginx.service
 
 [Service]
 Type=oneshot

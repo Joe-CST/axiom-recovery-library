@@ -26,10 +26,20 @@ else
   printf '127.0.1.1\t%s\n' "${NEW_HOSTNAME}" >>/etc/hosts
 fi
 
-nmcli connection modify prepper-hotspot 802-11-wireless.ssid "${NEW_SSID}"
+nmcli connection modify prepper-hotspot \
+  connection.autoconnect yes \
+  connection.autoconnect-retries 0 \
+  802-11-wireless.ssid "${NEW_SSID}" \
+  802-11-wireless.powersave 2 \
+  802-11-wireless.ap-isolation 0 \
+  wifi-sec.key-mgmt wpa-psk \
+  wifi-sec.proto rsn \
+  wifi-sec.pairwise ccmp \
+  wifi-sec.group ccmp \
+  wifi-sec.pmf disable
 qrencode -o /usr/share/prepper-portal/wifi-qr.png \
   "WIFI:T:WPA;S:${NEW_SSID};P:${HOTSPOT_PASSWORD};;"
-nmcli connection up prepper-hotspot || true
+nmcli connection up prepper-hotspot ifname wlan0 || true
 
 printf '%s\n' "${NEW_HOSTNAME}" > /var/lib/prepper-library/hostname
 printf '%s\n' "${NEW_SSID}" > /var/lib/prepper-library/ssid

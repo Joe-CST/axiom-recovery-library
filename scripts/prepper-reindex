@@ -14,12 +14,31 @@ if (( ${#ZIMS[@]} == 0 )); then
   exit 0
 fi
 
+ADDED=0
 for zim in "${ZIMS[@]}"; do
-  kiwix-manage "${TMP}" add "${zim}" >/dev/null
+  if [[ -e "${zim}.aria2" ]]; then
+    printf 'Skipping an archive that is still downloading: %s\n' "${zim}" >&2
+    continue
+  fi
+  if [[ ! -e "${zim}.verified" ]]; then
+    printf 'Skipping an archive that has not passed verification: %s\n' "${zim}" >&2
+    continue
+  fi
+  if kiwix-manage "${TMP}" add "${zim}" >/dev/null; then
+    ((ADDED += 1))
+  else
+    printf 'Skipping an unreadable or duplicate archive: %s\n' "${zim}" >&2
+  fi
 done
+
+if (( ADDED == 0 )); then
+  rm -f "${LIBRARY}" "${TMP}"
+  printf 'No complete ZIM archives are ready in %s\n' "${ZIM_DIR}"
+  exit 0
+fi
 
 chown www-data:www-data "${TMP}"
 chmod 0644 "${TMP}"
 mv -f "${TMP}" "${LIBRARY}"
-printf 'Indexed %d ZIM archive(s).\n' "${#ZIMS[@]}"
+printf 'Indexed %d ZIM archive(s).\n' "${ADDED}"
 

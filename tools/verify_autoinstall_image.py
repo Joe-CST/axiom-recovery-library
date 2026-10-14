@@ -71,7 +71,12 @@ def main() -> int:
         with ZipFile(io.BytesIO(embedded_zip)) as archive:
             assert archive.testzip() is None, "embedded builder ZIP is corrupt"
             version = archive.read("prepper-pi4-image/VERSION").decode().strip()
-            assert version == "1.7.0", f"unexpected embedded builder version: {version}"
+            expected_version = (
+                Path(__file__).resolve().parents[1] / "VERSION"
+            ).read_text(encoding="utf-8").strip()
+            assert version == expected_version, (
+                f"unexpected embedded builder version: {version}; expected {expected_version}"
+            )
         user_data = fat.readtext("user-data")
         assert user_data.startswith("#cloud-config\n"), "invalid cloud-init header"
         assert "prepper-stage1.sh" in user_data, "cloud-init launcher is missing"
@@ -98,6 +103,16 @@ def main() -> int:
             assert "Raspberry Pi 5 Model B" in installer, "Pi 5 support is missing"
             assert "nmcli connection up prepper-hotspot ifname wlan0" in installer, (
                 "hotspot activation is not bound to wlan0"
+            )
+            for setting in (
+                "connection.autoconnect-retries 0",
+                "802-11-wireless.powersave 2",
+                "wifi-sec.proto rsn",
+                "wifi-sec.pairwise ccmp",
+            ):
+                assert setting in installer, f"hotspot reliability setting is missing: {setting}"
+            assert "--interface wlan0" in installer, (
+                "installer does not verify the portal through the hotspot interface"
             )
             assert "for _attempt in $(seq 1 30)" in installer, (
                 "hotspot activation retry loop is missing"
@@ -139,6 +154,42 @@ def main() -> int:
             ).decode()
             assert "build.protomaps.com" in map_downloader, "map source is missing"
             assert "--maxzoom=15" in map_downloader, "street-level map detail is missing"
+            healthcheck = archive.read(
+                "prepper-pi4-image/scripts/prepper-healthcheck"
+            ).decode()
+            assert "hotspot_connection_ready" in healthcheck, (
+                "health check does not verify the hotspot connection"
+            )
+            assert "portal_ready" in healthcheck and "--interface wlan0" in healthcheck, (
+                "health check does not test the portal through wlan0"
+            )
+            assert "nmcli connection up prepper-hotspot ifname wlan0" in healthcheck, (
+                "health check cannot repair a stopped hotspot"
+            )
+            downloader = archive.read(
+                "prepper-pi4-image/scripts/prepper-download-kiwix"
+            ).decode()
+            assert "kiwix-download.lock" in downloader, (
+                "Kiwix downloader is missing the single-instance lock"
+            )
+            assert '"--auto-file-renaming=false"' in downloader, (
+                "Kiwix downloader can create duplicate .1.zim archives"
+            )
+            reindexer = archive.read(
+                "prepper-pi4-image/scripts/prepper-reindex"
+            ).decode()
+            assert "Skipping an unreadable or duplicate archive" in reindexer, (
+                "Kiwix indexer is not resilient to a damaged optional archive"
+            )
+            assert "has not passed verification" in reindexer, (
+                "Kiwix indexer can expose an archive before verification finishes"
+            )
+            kiwix_service = archive.read(
+                "prepper-pi4-image/systemd/prepper-kiwix.service"
+            ).decode()
+            assert "ExecStartPre" not in kiwix_service, (
+                "Kiwix service still blocks every restart on a full reindex"
+            )
             map_page = archive.read(
                 "prepper-pi4-image/assets/maps/web/index.html"
             ).decode()

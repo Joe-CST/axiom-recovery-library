@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  <img alt="Release" src="https://img.shields.io/badge/release-v1.7.0-08bddd">
+  <img alt="Release" src="https://img.shields.io/badge/release-v1.7.1-08bddd">
   <img alt="Raspberry Pi" src="https://img.shields.io/badge/Raspberry%20Pi-3B%2FB%2B%20%7C%204B%20%7C%205B-c51a4a">
   <img alt="Works offline" src="https://img.shields.io/badge/works-offline-1f9d72">
   <img alt="Phone friendly" src="https://img.shields.io/badge/phone-friendly-6d5bd0">
@@ -55,9 +55,9 @@ the 512 GB or 1 TB edition on a 256 GB card.
 
 | Edition | Best for | Included content | Download |
 |---|---|---|---|
-| **256 GB** | Lowest-cost complete setup | [OpenStreetMap](https://www.openstreetmap.org/) maps, 54 manuals, illustrated [Wikipedia](https://www.wikipedia.org/), medical, agriculture, repair, power, engineering, and practical collections | **[Download 256 GB image](https://github.com/Joe-CST/axiom-recovery-library/releases/download/v1.7.0/Costa-Axiom-Pi3-Pi4-Pi5-256GB-v1.7.0.img.xz)** |
-| **512 GB** | Best balance of cost and depth | Everything in 256 GB, plus [Wiktionary](https://www.wiktionary.org/), [Wikiversity](https://www.wikiversity.org/), and the historical [Survivor Library](https://www.survivorlibrary.com/) | **[Download 512 GB image](https://github.com/Joe-CST/axiom-recovery-library/releases/download/v1.7.0/Costa-Axiom-Pi3-Pi4-Pi5-512GB-v1.7.0.img.xz)** |
-| **1 TB** | Maximum offline library | Everything in 512 GB, plus [Khan Academy](https://www.khanacademy.org/) and [Project Gutenberg](https://www.gutenberg.org/) | **[Download 1 TB image](https://github.com/Joe-CST/axiom-recovery-library/releases/download/v1.7.0/Costa-Axiom-Pi3-Pi4-Pi5-1TB-v1.7.0.img.xz)** |
+| **256 GB** | Lowest-cost complete setup | [OpenStreetMap](https://www.openstreetmap.org/) maps, 54 manuals, illustrated [Wikipedia](https://www.wikipedia.org/), medical, agriculture, repair, power, engineering, and practical collections | **[Download 256 GB image](https://github.com/Joe-CST/axiom-recovery-library/releases/download/v1.7.1/Costa-Axiom-Pi3-Pi4-Pi5-256GB-v1.7.1.img.xz)** |
+| **512 GB** | Best balance of cost and depth | Everything in 256 GB, plus [Wiktionary](https://www.wiktionary.org/), [Wikiversity](https://www.wikiversity.org/), and the historical [Survivor Library](https://www.survivorlibrary.com/) | **[Download 512 GB image](https://github.com/Joe-CST/axiom-recovery-library/releases/download/v1.7.1/Costa-Axiom-Pi3-Pi4-Pi5-512GB-v1.7.1.img.xz)** |
+| **1 TB** | Maximum offline library | Everything in 512 GB, plus [Khan Academy](https://www.khanacademy.org/) and [Project Gutenberg](https://www.gutenberg.org/) | **[Download 1 TB image](https://github.com/Joe-CST/axiom-recovery-library/releases/download/v1.7.1/Costa-Axiom-Pi3-Pi4-Pi5-1TB-v1.7.1.img.xz)** |
 
 The image download is about 579 MiB. It is a compact installer. On first boot,
 the Pi downloads and verifies the selected library. That first setup can take
@@ -211,7 +211,7 @@ context. It is not a guide to building a reactor or radioisotope generator.
 
 ## Project status
 
-Version **1.7.0** has software-level verification for all three editions,
+Version **1.7.1** has software-level verification for all three editions,
 including complete compressed-image decompression and SHA-256 comparison. The
 mobile portal is tested at iPhone width. Physical hardware can vary, so test one
 complete first boot before preparing multiple cards.
