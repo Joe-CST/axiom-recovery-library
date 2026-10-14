@@ -1,0 +1,19 @@
+[Unit]
+Description=Download and verify the expanded Prepper Library
+Wants=network-online.target
+After=network-online.target
+ConditionPathExists=!/var/lib/prepper-library/content-v1.7.complete
+
+[Service]
+Type=oneshot
+EnvironmentFile=/etc/prepper-library/config.env
+ExecStart=/usr/local/sbin/prepper-download-all ${CONTENT_PROFILE}
+Restart=on-failure
+RestartSec=5min
+TimeoutStartSec=infinity
+Nice=10
+IOSchedulingClass=best-effort
+IOSchedulingPriority=7
+
+[Install]
+WantedBy=multi-user.target

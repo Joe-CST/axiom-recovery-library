@@ -1,0 +1,243 @@
+#!/usr/bin/env python3
+"""Download, validate, and catalog public reference documents."""
+
+from __future__ import annotations
+
+import csv
+import hashlib
+import json
+import os
+import re
+import shutil
+import subprocess
+import sys
+import tempfile
+import urllib.error
+import urllib.request
+from pathlib import Path
+
+MANIFEST = Path("/etc/prepper-library/documents-manifest.csv")
+DESTINATION = Path("/srv/prepper-library/manuals")
+STATE_DIR = Path("/var/lib/prepper-library")
+PROGRESS = STATE_DIR / "content-progress.json"
+RESULT = STATE_DIR / "documents-result.json"
+SAFE_NAME = re.compile(r"^[A-Za-z0-9._-]+$")
+USER_AGENT = "Mozilla/5.0 (compatible; AxiomRecoveryLibrary/1.7)"
+RESERVE_GIB = int(os.environ.get("PREPPER_RESERVE_GIB", "80"))
+PROFILES = {"core", "sd256", "sd512", "full"}
+
+
+def sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as stream:
+        for chunk in iter(lambda: stream.read(4 * 1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def write_json(path: Path, payload: dict[str, object]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with tempfile.NamedTemporaryFile(
+        "w", encoding="utf-8", dir=path.parent, delete=False
+    ) as stream:
+        json.dump(payload, stream, indent=2)
+        stream.write("\n")
+        temporary = Path(stream.name)
+    temporary.chmod(0o644)
+    temporary.replace(path)
+
+
+def set_progress(
+    label: str,
+    category: str,
+    filename: str,
+    index: int,
+    total: int,
+    expected_bytes: int | None,
+) -> None:
+    write_json(
+        PROGRESS,
+        {
+            "state": "downloading",
+            "stage": "manuals",
+            "label": label,
+            "filename": filename,
+            "category": category,
+            "item": index,
+            "total": total,
+            "expectedBytes": expected_bytes or 0,
+        },
+    )
+
+
+def remote_size(url: str) -> int | None:
+    try:
+        request = urllib.request.Request(
+            url, method="HEAD", headers={"User-Agent": USER_AGENT}
+        )
+        with urllib.request.urlopen(request, timeout=60) as response:
+            value = response.headers.get("Content-Length")
+            return int(value) if value and value.isdigit() else None
+    except (urllib.error.URLError, TimeoutError, ValueError):
+        return None
+
+
+def valid_pdf(path: Path, expected: str, size: int | None) -> bool:
+    if not path.exists() or Path(str(path) + ".aria2").exists():
+        return False
+    if path.stat().st_size < 1024:
+        return False
+    if size is not None and path.stat().st_size != size:
+        return False
+    try:
+        with path.open("rb") as stream:
+            if stream.read(5) != b"%PDF-":
+                return False
+    except OSError:
+        return False
+    return not expected or sha256(path) == expected
+
+
+def selected(row_profile: str, requested_profile: str) -> bool:
+    manifest_profile = "full" if requested_profile in {"sd256", "sd512"} else requested_profile
+    return manifest_profile in {item.strip() for item in row_profile.split("|")}
+
+
+def require_space(target: Path, size: int | None) -> None:
+    free = shutil.disk_usage(DESTINATION).free
+    reserve = RESERVE_GIB * 1024**3
+    partial = target.stat().st_size if target.exists() else 0
+    remaining = max(0, size - partial) if size is not None else 64 * 1024**2
+    if free - remaining < reserve:
+        raise RuntimeError(f"protected {RESERVE_GIB} GiB storage reserve would be crossed")
+
+
+def download(url: str, target: Path) -> None:
+    aria2 = subprocess.run(
+        [
+            "aria2c",
+            "--continue=true",
+            "--max-connection-per-server=2",
+            "--split=2",
+            "--file-allocation=none",
+            "--connect-timeout=30",
+            "--timeout=60",
+            "--max-tries=2",
+            "--retry-wait=3",
+            "--summary-interval=15",
+            f"--user-agent={USER_AGENT}",
+            f"--dir={target.parent}",
+            f"--out={target.name}",
+            url,
+        ],
+        check=False,
+    )
+    if aria2.returncode == 0:
+        return
+
+    # Some government document hosts answer range probes correctly but reject
+    # aria2's segmented transfer. Fall back to one ordinary HTTP transfer so a
+    # single fussy host cannot hold the entire resumable content service open.
+    Path(str(target) + ".aria2").unlink(missing_ok=True)
+    curl = [
+        "curl",
+        "--fail",
+        "--location",
+        "--retry",
+        "2",
+        "--retry-delay",
+        "3",
+        "--connect-timeout",
+        "30",
+        "--max-time",
+        "120",
+        "--user-agent",
+        USER_AGENT,
+        "--output",
+        str(target),
+    ]
+    if target.exists() and target.stat().st_size:
+        resumed = subprocess.run([*curl, "--continue-at", "-", url], check=False)
+        if resumed.returncode == 0:
+            return
+        target.unlink(missing_ok=True)
+    subprocess.run([*curl, url], check=True)
+
+
+def main() -> int:
+    if os.geteuid() != 0:
+        print("Run with sudo.", file=sys.stderr)
+        return 2
+    profile = sys.argv[1] if len(sys.argv) > 1 else "full"
+    if profile not in PROFILES:
+        print("Profile must be core, sd256, sd512, or full.", file=sys.stderr)
+        return 2
+    if not MANIFEST.exists():
+        print(f"Missing manifest: {MANIFEST}", file=sys.stderr)
+        return 2
+
+    with MANIFEST.open(newline="", encoding="utf-8") as stream:
+        rows = [row for row in csv.DictReader(stream) if selected(row["profile"], profile)]
+
+    failures: list[dict[str, object]] = []
+    installed = 0
+    for index, row in enumerate(rows, start=1):
+        category = row["category"].strip()
+        filename = row["filename"].strip()
+        label = row.get("title", "").strip() or filename
+        required = row.get("required", "false").strip().lower() == "true"
+        try:
+            if not SAFE_NAME.fullmatch(category) or not SAFE_NAME.fullmatch(filename):
+                raise RuntimeError(f"unsafe manifest path: {category}/{filename}")
+            target_dir = DESTINATION / category
+            target = target_dir / filename
+            part = target_dir / f"{filename}.part"
+            expected = row.get("sha256", "").strip().lower()
+            if expected and not re.fullmatch(r"[0-9a-f]{64}", expected):
+                raise RuntimeError("invalid manifest SHA-256")
+            url = row["url"].strip()
+            size = remote_size(url)
+            set_progress(label, category, filename, index, len(rows), size)
+            if valid_pdf(target, expected, size):
+                print(f"OK: {category}/{filename}")
+                installed += 1
+                continue
+            target_dir.mkdir(parents=True, exist_ok=True)
+            require_space(part, size)
+            print(f"Downloading: {category}/{filename}")
+            download(url, part)
+            if not valid_pdf(part, expected, size):
+                part.unlink(missing_ok=True)
+                Path(str(part) + ".aria2").unlink(missing_ok=True)
+                raise RuntimeError("downloaded file is not a complete validated PDF")
+            part.replace(target)
+            installed += 1
+        except Exception as error:
+            failures.append(
+                {
+                    "filename": filename,
+                    "required": required,
+                    "message": str(error),
+                }
+            )
+            print(f"FAILED {filename}: {error}", file=sys.stderr)
+
+    subprocess.run(["/usr/local/sbin/prepper-build-catalog"], check=False)
+    subprocess.run(["/usr/local/sbin/prepper-healthcheck"], check=False)
+    required_failures = [item for item in failures if item["required"]]
+    write_json(
+        RESULT,
+        {
+            "profile": profile,
+            "expected": len(rows),
+            "installed": installed,
+            "failed": len(failures),
+            "requiredFailed": len(required_failures),
+            "failures": failures,
+        },
+    )
+    return 1 if required_failures else 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

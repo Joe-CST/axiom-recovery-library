@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#20272b">
+  <title>Knowledge Library · Costa Axiom</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  <nav class="site-nav" aria-label="Main navigation">
+    <a class="brand" href="/" aria-label="Costa Axiom home"><img class="brand-logo" src="/costa-logo.png" alt="Costa"></a>
+    <div class="nav-links">
+      <a href="/guide.html">Start here</a>
+      <a href="/library.html" aria-current="page">Library</a>
+      <a href="/maps/">Maps</a>
+    </div>
+  </nav>
+
+  <main id="main-content" class="page-shell">
+    <header class="page-intro">
+      <p class="eyebrow">OFFLINE KNOWLEDGE CATALOG</p>
+      <h1>Find what you need</h1>
+      <p class="lede">Search the documents and knowledge archives stored on this Pi. Filter by practical goal, then open a source or search across every archive.</p>
+      <div class="actions">
+        <a class="button urgent" href="/guide.html">Urgent-needs guide</a>
+        <a class="button primary" data-kiwix href="#">Full-text archive search</a>
+        <a class="button primary" href="/manuals/">Browse document files</a>
+      </div>
+    </header>
+
+    <section class="search-panel" aria-label="Search and filter library">
+      <form id="catalog-search" class="search-row" role="search">
+        <label for="search-input">Search knowledge catalog</label>
+        <input id="search-input" type="search" enterkeyhint="search" autocomplete="off" spellcheck="true" placeholder="Try: wound care, crop planning, solar…">
+        <button type="submit">Search</button>
+      </form>
+      <div id="category-filters" class="filter-bar" aria-label="Filter by category"></div>
+    </section>
+
+    <p id="catalog-summary" class="catalog-summary" role="status" aria-live="polite">Loading the local catalog…</p>
+    <div id="catalog-grid" class="catalog-grid" aria-busy="true">
+      <div class="resource-card loading-card">Reading the local catalog…</div>
+    </div>
+
+    <noscript>
+      <section class="empty-state">
+        <h2>JavaScript is turned off</h2>
+        <p>You can still <a href="/manuals/">browse document files</a> or <a href="http://10.10.10.1:8080/">open the full-text archive search</a>.</p>
+      </section>
+    </noscript>
+
+    <aside class="catalog-note">
+      <strong>How to judge a source</strong>
+      <p>Check its publisher, date, region, and assumptions. “Installed” means the file is present locally; it does not guarantee that every instruction is current or suitable for your situation. Cross-check high-risk medical, electrical, structural, chemical, and radiation decisions.</p>
+    </aside>
+  </main>
+
+  <footer>
+    <span>Costa · Axiom Offline Recovery Library</span>
+    <span>Everything on this page works without internet</span>
+  </footer>
+  <script src="/app.js"></script>
+  <script src="/library.js"></script>
+</body>
+</html>

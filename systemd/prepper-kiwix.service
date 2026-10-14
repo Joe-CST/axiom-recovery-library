@@ -1,0 +1,21 @@
+[Unit]
+Description=Prepper Library Kiwix server
+After=local-fs.target network.target prepper-firstboot.service
+Wants=network.target
+
+[Service]
+Type=simple
+ExecStartPre=+/usr/local/sbin/prepper-reindex
+ExecStart=/usr/local/sbin/prepper-kiwix-start
+Restart=on-failure
+RestartSec=5
+User=www-data
+Group=www-data
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=true
+ProtectSystem=strict
+ReadOnlyPaths=/srv/prepper-library/kiwix /usr/share/prepper-no-content
+
+[Install]
+WantedBy=multi-user.target

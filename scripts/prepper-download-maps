@@ -1,0 +1,76 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+
+DESTINATION=/srv/prepper-library/maps
+FINAL="${DESTINATION}/north-america.pmtiles"
+PART="${FINAL}.part"
+REGION=/etc/prepper-library/north-america-region.geojson
+SOURCE_STATE=/var/lib/prepper-library/maps-source-url
+LOG=/var/log/prepper-library/maps-download.log
+FALLBACK_SOURCE=https://build.protomaps.com/20261012.pmtiles
+METADATA_URL=https://build-metadata.protomaps.dev/builds.json
+MINIMUM_FREE_BYTES=68719476736
+
+[[ ${EUID} -eq 0 ]] || { printf 'Run this downloader with sudo.\n' >&2; exit 1; }
+command -v pmtiles >/dev/null || { printf 'The pmtiles CLI is not installed.\n' >&2; exit 2; }
+[[ -s "${REGION}" ]] || { printf 'Missing map region file: %s\n' "${REGION}" >&2; exit 3; }
+
+install -d -m 0755 "${DESTINATION}" /var/lib/prepper-library /var/log/prepper-library
+exec 9>/run/lock/prepper-download-maps.lock
+flock -n 9 || { printf 'Another offline-map download is already running.\n' >&2; exit 75; }
+exec > >(tee -a "${LOG}") 2>&1
+
+if [[ -s "${FINAL}" ]] && pmtiles verify "${FINAL}"; then
+  printf 'Offline map archive is already complete: %s\n' "${FINAL}"
+  /usr/local/sbin/prepper-healthcheck || true
+  exit 0
+fi
+
+FREE_BYTES="$(df -B1 --output=avail "${DESTINATION}" | tail -n 1 | tr -d ' ')"
+if (( FREE_BYTES < MINIMUM_FREE_BYTES )); then
+  printf 'At least 64 GiB free is required before starting the North America map download.\n' >&2
+  printf 'Available bytes: %s\n' "${FREE_BYTES}" >&2
+  exit 4
+fi
+
+if [[ -s "${SOURCE_STATE}" ]]; then
+  SOURCE_URL="$(head -n 1 "${SOURCE_STATE}")"
+else
+  METADATA_TMP="$(mktemp)"
+  trap 'rm -f "${METADATA_TMP}"' EXIT
+  if curl --fail --location --silent --show-error --retry 5 --retry-delay 5 \
+      --output "${METADATA_TMP}" "${METADATA_URL}"; then
+    BUILD_KEY="$(jq -r '[.[] | select(.version | startswith("4."))] | sort_by(.key) | last | .key // empty' "${METADATA_TMP}")"
+  else
+    BUILD_KEY=
+  fi
+  if [[ "${BUILD_KEY}" =~ ^[0-9]{8}\.pmtiles$ ]]; then
+    SOURCE_URL="https://build.protomaps.com/${BUILD_KEY}"
+  else
+    SOURCE_URL="${FALLBACK_SOURCE}"
+  fi
+  printf '%s\n' "${SOURCE_URL}" >"${SOURCE_STATE}"
+  chmod 0644 "${SOURCE_STATE}"
+  rm -f "${METADATA_TMP}"
+  trap - EXIT
+fi
+
+printf '\n[%s] Downloading offline North America vector map\n' "$(date --iso-8601=seconds)"
+printf 'Coverage: United States, Canada, Mexico, Puerto Rico and U.S. territories\n'
+printf 'Source: %s\n' "${SOURCE_URL}"
+printf 'Destination: %s\n' "${FINAL}"
+printf 'This is a large download. Keep Ethernet and power connected.\n\n'
+
+rm -f "${PART}"
+pmtiles extract "${SOURCE_URL}" "${PART}" \
+  --region="${REGION}" \
+  --maxzoom=15 \
+  --download-threads=6 \
+  --overfetch=0.05
+pmtiles verify "${PART}"
+mv -f "${PART}" "${FINAL}"
+chmod 0644 "${FINAL}"
+sync "${FINAL}"
+/usr/local/sbin/prepper-healthcheck || true
+printf '\n[%s] Offline map download complete (%s).\n' \
+  "$(date --iso-8601=seconds)" "$(du -h "${FINAL}" | cut -f1)"

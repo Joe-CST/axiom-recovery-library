@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#20272b">
+  <title>Offline North America Map · Costa Axiom</title>
+  <link rel="stylesheet" href="./vendor/maplibre-gl.css">
+  <link rel="stylesheet" href="./map.css">
+</head>
+<body>
+  <a class="skip-link" href="#map">Skip to map</a>
+  <header class="map-header">
+    <a class="back" href="/" aria-label="Return to Axiom library">← Library</a>
+    <div class="map-title">
+      <img class="map-brand-logo" src="/costa-logo.png" alt="Costa">
+      <div class="map-title-copy">
+        <strong>Offline North America Map</strong>
+        <span>United States, Canada, Mexico, Puerto Rico and U.S. territories</span>
+      </div>
+    </div>
+    <button id="about-button" type="button" aria-haspopup="dialog">About</button>
+  </header>
+
+  <nav class="region-bar" aria-label="Map regions">
+    <button type="button" data-center="-98.5,39.5,3.4">Lower 48</button>
+    <button type="button" data-center="-151,64,4">Alaska</button>
+    <button type="button" data-center="-157.5,20.7,6">Hawaii</button>
+    <button type="button" data-center="-66.4,18.2,7">Puerto Rico</button>
+    <button type="button" data-center="-106,57,3">Canada</button>
+    <button type="button" data-center="-102,23.5,4">Mexico</button>
+  </nav>
+
+  <main id="map" aria-label="Interactive offline map. Drag to move and pinch to zoom." tabindex="-1"></main>
+
+  <details class="coordinate-panel">
+    <summary>Go to coordinates</summary>
+    <form id="coordinate-form" class="coordinate-form">
+      <label><span>Latitude</span><input id="latitude" inputmode="decimal" autocomplete="off" placeholder="40.7128" required aria-describedby="coordinate-help"></label>
+      <label><span>Longitude</span><input id="longitude" inputmode="decimal" autocomplete="off" placeholder="-74.0060" required aria-describedby="coordinate-help"></label>
+      <button type="submit">Show location</button>
+      <small id="coordinate-help">Decimal degrees, such as 40.7128 and -74.0060.</small>
+    </form>
+  </details>
+
+  <div id="map-message" class="map-message" role="status">
+    <strong>Checking offline map…</strong>
+    <span>The map will open when its local archive is ready.</span>
+  </div>
+
+  <dialog id="about-dialog" aria-labelledby="about-title">
+    <h2 id="about-title">About this map</h2>
+    <p>This is a street and reference map stored entirely on the Prepper Pi. It does not include satellite imagery, live traffic, or turn-by-turn routing.</p>
+    <p>Map data © OpenStreetMap contributors. Basemap © Protomaps. The map remains usable when the Pi has no internet connection.</p>
+    <p>Tap a point to see its latitude and longitude. Drag to move and pinch to zoom.</p>
+    <button id="close-about" type="button">Close</button>
+  </dialog>
+
+  <script src="./vendor/pmtiles.js"></script>
+  <script type="module" src="./map.js"></script>
+</body>
+</html>

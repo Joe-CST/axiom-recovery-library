@@ -1,0 +1,37 @@
+name: Validate source
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check shell syntax
+        run: |
+          bash -n \
+            install.sh \
+            autoinstall/*.sh \
+            scripts/capture-master.sh \
+            scripts/prepper-download-all \
+            scripts/prepper-download-maps \
+            scripts/prepper-firstboot \
+            scripts/prepper-healthcheck \
+            scripts/prepper-kiwix-start \
+            scripts/prepper-prepare-image \
+            scripts/prepper-reindex \
+            tools/*.sh
+      - name: Check Python syntax
+        run: |
+          python -m py_compile \
+            scripts/prepper-download-kiwix \
+            scripts/prepper-download-documents \
+            scripts/prepper-build-catalog \
+            tools/*.py
+      - name: Confirm release version
+        run: test "$(cat VERSION)" = "1.7.0"

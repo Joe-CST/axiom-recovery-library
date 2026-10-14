@@ -1,0 +1,14 @@
+[Unit]
+Description=Initialize identity and hotspot for a cloned Prepper Library
+After=NetworkManager.service
+Wants=NetworkManager.service
+Before=prepper-kiwix.service nginx.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/prepper-firstboot
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
+

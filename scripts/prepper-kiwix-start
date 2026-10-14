@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+
+LIBRARY=/srv/prepper-library/kiwix/library.xml
+THREADS=4
+if [[ -r /proc/device-tree/model ]] && grep -aq 'Raspberry Pi 3' /proc/device-tree/model; then
+  THREADS=2
+fi
+if [[ -s "${LIBRARY}" ]]; then
+  exec /usr/bin/kiwix-serve --port=8080 --threads="${THREADS}" --monitorLibrary \
+    --blockexternal --library "${LIBRARY}"
+fi
+
+exec /usr/bin/python3 -m http.server 8080 \
+  --bind 0.0.0.0 --directory /usr/share/prepper-no-content

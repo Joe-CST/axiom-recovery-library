@@ -1,0 +1,19 @@
+[Unit]
+Description=Download the Prepper Library offline North America map
+Wants=network-online.target
+After=network-online.target nginx.service
+ConditionPathExists=!/srv/prepper-library/maps/north-america.pmtiles
+StartLimitIntervalSec=0
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/prepper-download-maps
+Nice=10
+IOSchedulingClass=best-effort
+IOSchedulingPriority=7
+TimeoutStartSec=infinity
+Restart=on-failure
+RestartSec=5min
+
+[Install]
+WantedBy=multi-user.target

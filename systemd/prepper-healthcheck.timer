@@ -1,0 +1,12 @@
+[Unit]
+Description=Periodically update Prepper Library health status
+
+[Timer]
+OnBootSec=2min
+OnUnitActiveSec=1min
+Unit=prepper-healthcheck.service
+Persistent=true
+
+[Install]
+WantedBy=timers.target
+

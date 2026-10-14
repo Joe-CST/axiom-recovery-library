@@ -1,0 +1,91 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+
+OUT=/usr/share/prepper-portal/status.json
+TMP="${OUT}.tmp"
+CATALOG=/usr/share/prepper-portal/catalog.json
+PROGRESS=/var/lib/prepper-library/content-progress.json
+/usr/local/sbin/prepper-build-catalog >/dev/null 2>&1 || true
+ZIM_COUNT="$(find /srv/prepper-library/kiwix -maxdepth 1 -type f -name '*.zim' | wc -l)"
+DOC_COUNT="$(find /srv/prepper-library/manuals -type f -name '*.pdf' | wc -l)"
+MAP_FILE=/srv/prepper-library/maps/north-america.pmtiles
+MAP_PART="${MAP_FILE}.part"
+MAP_BYTES=0
+MAP_STATE=missing
+if [[ -s "${MAP_FILE}" ]]; then
+  MAP_BYTES="$(stat -c %s "${MAP_FILE}")"
+  MAP_STATE=ready
+elif [[ -e "${MAP_PART}" ]]; then
+  MAP_BYTES="$(stat -c %s "${MAP_PART}")"
+  MAP_STATE=downloading
+fi
+FREE_BYTES="$(df -B1 --output=avail /srv/prepper-library | tail -n 1 | tr -d ' ')"
+EXPECTED_DOCS="$(jq -r '.expectedDocuments // 0' "${CATALOG}" 2>/dev/null || printf '0')"
+EXPECTED_COLLECTIONS="$(jq -r '.expectedCollections // 0' "${CATALOG}" 2>/dev/null || printf '0')"
+CURRENT_ITEM="$(jq -r '.label // ""' "${PROGRESS}" 2>/dev/null || true)"
+CURRENT_STAGE="$(jq -r '.stage // ""' "${PROGRESS}" 2>/dev/null || true)"
+CURRENT_FILENAME="$(jq -r '.filename // ""' "${PROGRESS}" 2>/dev/null || true)"
+CURRENT_CATEGORY="$(jq -r '.category // ""' "${PROGRESS}" 2>/dev/null || true)"
+CURRENT_INDEX="$(jq -r '.item // 0' "${PROGRESS}" 2>/dev/null || printf '0')"
+CURRENT_TOTAL="$(jq -r '.total // 0' "${PROGRESS}" 2>/dev/null || printf '0')"
+CURRENT_TOTAL_BYTES="$(jq -r '.expectedBytes // 0' "${PROGRESS}" 2>/dev/null || printf '0')"
+CURRENT_BYTES=0
+if [[ "${CURRENT_FILENAME}" == "$(basename -- "${CURRENT_FILENAME}")" ]]; then
+  CURRENT_FILE=
+  case "${CURRENT_STAGE}" in
+    kiwix) CURRENT_FILE="/srv/prepper-library/kiwix/${CURRENT_FILENAME}" ;;
+    manuals)
+      if [[ "${CURRENT_CATEGORY}" =~ ^[A-Za-z0-9._-]+$ ]]; then
+        CURRENT_FILE="/srv/prepper-library/manuals/${CURRENT_CATEGORY}/${CURRENT_FILENAME}.part"
+      fi
+      ;;
+    maps) CURRENT_FILE="${MAP_PART}" ;;
+  esac
+  if [[ -n "${CURRENT_FILE}" && -e "${CURRENT_FILE}" ]]; then
+    CURRENT_BYTES="$(stat -c %s "${CURRENT_FILE}")"
+  fi
+fi
+if systemctl is-active --quiet prepper-content-download.service; then
+  DOWNLOAD_STATE=downloading
+elif systemctl is-failed --quiet prepper-content-download.service; then
+  DOWNLOAD_STATE=attention
+elif [[ -e /var/lib/prepper-library/content-v1.7.complete ]]; then
+  DOWNLOAD_STATE=ready
+elif (( DOC_COUNT >= EXPECTED_DOCS && ZIM_COUNT >= EXPECTED_COLLECTIONS )); then
+  DOWNLOAD_STATE=ready
+else
+  DOWNLOAD_STATE=partial
+fi
+
+service_state() {
+  if systemctl is-active --quiet "$1"; then printf 'ok'; else printf 'attention'; fi
+}
+
+cat >"${TMP}" <<EOF
+{
+  "version": "1.7.0",
+  "generated": "$(date --iso-8601=seconds)",
+  "hostname": "$(hostname)",
+  "hotspot": "$(service_state NetworkManager)",
+  "portal": "$(service_state nginx)",
+  "kiwix": "$(service_state prepper-kiwix)",
+  "zimCount": ${ZIM_COUNT},
+  "expectedZimCount": ${EXPECTED_COLLECTIONS},
+  "documentCount": ${DOC_COUNT},
+  "expectedDocumentCount": ${EXPECTED_DOCS},
+  "downloadState": "${DOWNLOAD_STATE}",
+  "currentItem": $(jq -Rn --arg value "${CURRENT_ITEM}" '$value'),
+  "currentStage": $(jq -Rn --arg value "${CURRENT_STAGE}" '$value'),
+  "currentIndex": ${CURRENT_INDEX},
+  "currentTotal": ${CURRENT_TOTAL},
+  "currentBytes": ${CURRENT_BYTES},
+  "currentTotalBytes": ${CURRENT_TOTAL_BYTES},
+  "mapState": "${MAP_STATE}",
+  "mapBytes": ${MAP_BYTES},
+  "freeBytes": ${FREE_BYTES}
+}
+EOF
+chmod 0644 "${TMP}"
+mv -f "${TMP}" "${OUT}"
+cat "${OUT}"
+

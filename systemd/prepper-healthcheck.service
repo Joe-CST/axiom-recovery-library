@@ -1,0 +1,8 @@
+[Unit]
+Description=Update Prepper Library local health status
+After=NetworkManager.service nginx.service prepper-kiwix.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/prepper-healthcheck
+

@@ -1,0 +1,16 @@
+[Unit]
+Description=Install and download the Prepper Library automatically
+Wants=network-online.target
+After=network-online.target cloud-final.service
+ConditionPathExists=!/var/lib/prepper-autoinstall/complete
+StartLimitIntervalSec=0
+
+[Service]
+Type=oneshot
+ExecStart=/opt/prepper-autoinstall/prepper-autoinstall.sh
+TimeoutStartSec=infinity
+Restart=on-failure
+RestartSec=15min
+
+[Install]
+WantedBy=multi-user.target

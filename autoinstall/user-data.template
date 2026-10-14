@@ -1,0 +1,24 @@
+#cloud-config
+hostname: prepper-box
+manage_etc_hosts: true
+users:
+  - name: prepper
+    groups: users,adm,dialout,audio,netdev,video,plugdev,cdrom,input,gpio,spi,i2c,render,sudo
+    shell: /bin/bash
+    lock_passwd: false
+    passwd: "__ADMIN_PASSWORD_HASH__"
+    sudo: ALL=(ALL) ALL
+ssh_pwauth: true
+enable_ssh: true
+write_files:
+  - path: /etc/ssh/sshd_config.d/10-prepper-password-auth.conf
+    owner: root:root
+    permissions: '0644'
+    content: |
+      PasswordAuthentication yes
+      PermitRootLogin no
+runcmd:
+  - [ systemctl, enable, --now, ssh ]
+  - [ bash, /boot/firmware/prepper-autoinstall/prepper-stage1.sh ]
+final_message: "Prepper Library installer has been started. See /boot/firmware/PREPPER-INSTALL.log."
+

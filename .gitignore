@@ -1,0 +1,14 @@
+config.env
+*.img
+*.img.xz
+*.zim
+*.pmtiles
+*.part
+*.aria2
+*.log
+__pycache__/
+*.pyc
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

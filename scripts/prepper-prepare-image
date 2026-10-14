@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+
+[[ ${EUID} -eq 0 ]] || { printf 'Run with sudo.\n' >&2; exit 1; }
+printf 'This clears clone identity and shuts the Pi down for image capture.\n'
+printf 'It does not erase library content. Type PREPARE to continue: '
+read -r answer
+[[ "${answer}" == "PREPARE" ]] || { printf 'Cancelled.\n'; exit 1; }
+
+/usr/local/sbin/prepper-healthcheck || true
+sync
+fstrim -av || true
+rm -f /var/lib/prepper-library/identity-initialized
+rm -f /var/lib/prepper-library/hostname /var/lib/prepper-library/ssid
+rm -f /etc/ssh/ssh_host_* 2>/dev/null || true
+truncate -s 0 /etc/machine-id
+rm -f /var/lib/dbus/machine-id
+sync
+printf 'Master prepared. Shutting down now; do not boot it before capture.\n'
+systemctl poweroff
+

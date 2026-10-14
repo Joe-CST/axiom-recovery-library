@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+
+ZIM_DIR=/srv/prepper-library/kiwix
+LIBRARY="${ZIM_DIR}/library.xml"
+TMP="${ZIM_DIR}/.library.xml.new"
+
+rm -f "${TMP}"
+mapfile -d '' ZIMS < <(find "${ZIM_DIR}" -maxdepth 1 -type f -name '*.zim' -print0 | sort -z)
+
+if (( ${#ZIMS[@]} == 0 )); then
+  rm -f "${LIBRARY}"
+  printf 'No ZIM archives found in %s\n' "${ZIM_DIR}"
+  exit 0
+fi
+
+for zim in "${ZIMS[@]}"; do
+  kiwix-manage "${TMP}" add "${zim}" >/dev/null
+done
+
+chown www-data:www-data "${TMP}"
+chmod 0644 "${TMP}"
+mv -f "${TMP}" "${LIBRARY}"
+printf 'Indexed %d ZIM archive(s).\n' "${#ZIMS[@]}"
+

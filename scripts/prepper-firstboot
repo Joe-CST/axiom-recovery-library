@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+
+MARKER=/var/lib/prepper-library/identity-initialized
+CONFIG=/etc/prepper-library/config.env
+[[ -e "${MARKER}" ]] && exit 0
+
+# shellcheck disable=SC1090
+source "${CONFIG}"
+
+if [[ "${UNIQUE_CLONE_IDENTITY}" == "true" ]]; then
+  SUFFIX="$(od -An -N2 -tx1 /dev/urandom | tr -d ' \n' | tr '[:lower:]' '[:upper:]')"
+  NEW_HOSTNAME="${BOX_HOSTNAME}-${SUFFIX,,}"
+  NEW_SSID="${HOTSPOT_SSID}-${SUFFIX}"
+else
+  NEW_HOSTNAME="${BOX_HOSTNAME}"
+  NEW_SSID="${HOTSPOT_SSID}"
+fi
+
+install -d -m 0755 /etc/cloud/cloud.cfg.d
+printf 'manage_etc_hosts: false\n' >/etc/cloud/cloud.cfg.d/99-prepper-hosts.cfg
+hostnamectl set-hostname "${NEW_HOSTNAME}"
+if grep -qE '^127\.0\.1\.1\s+' /etc/hosts; then
+  sed -i -E "s/^127\.0\.1\.1\s+.*/127.0.1.1\t${NEW_HOSTNAME}/" /etc/hosts
+else
+  printf '127.0.1.1\t%s\n' "${NEW_HOSTNAME}" >>/etc/hosts
+fi
+
+nmcli connection modify prepper-hotspot 802-11-wireless.ssid "${NEW_SSID}"
+qrencode -o /usr/share/prepper-portal/wifi-qr.png \
+  "WIFI:T:WPA;S:${NEW_SSID};P:${HOTSPOT_PASSWORD};;"
+nmcli connection up prepper-hotspot || true
+
+printf '%s\n' "${NEW_HOSTNAME}" > /var/lib/prepper-library/hostname
+printf '%s\n' "${NEW_SSID}" > /var/lib/prepper-library/ssid
+touch "${MARKER}"
+

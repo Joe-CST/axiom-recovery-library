@@ -1,0 +1,287 @@
+#!/usr/bin/env python3
+"""Download and validate the newest Kiwix archives in the local manifest."""
+
+from __future__ import annotations
+
+import csv
+import hashlib
+import html.parser
+import json
+import os
+import re
+import shutil
+import subprocess
+import sys
+import tempfile
+import urllib.error
+import urllib.parse
+import urllib.request
+from pathlib import Path
+
+MANIFEST = Path(os.environ.get("PREPPER_KIWIX_MANIFEST", "/etc/prepper-library/kiwix-manifest.csv"))
+DESTINATION = Path("/srv/prepper-library/kiwix")
+STATE_DIR = Path("/var/lib/prepper-library")
+PROGRESS = STATE_DIR / "content-progress.json"
+RESULT = STATE_DIR / "kiwix-result.json"
+USER_AGENT = "Mozilla/5.0 (compatible; AxiomRecoveryLibrary/1.7)"
+RESERVE_GIB = int(os.environ.get("PREPPER_RESERVE_GIB", "80"))
+PROFILES = {"core", "sd256", "sd512", "full"}
+PROFILE_EXCLUSIONS = {
+    "sd256": {"wiktionary", "wikiversity", "survivor-library", "khan-academy", "gutenberg"},
+    "sd512": {"khan-academy", "gutenberg"},
+}
+
+
+class LinkParser(html.parser.HTMLParser):
+    def __init__(self) -> None:
+        super().__init__()
+        self.links: list[str] = []
+
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        if tag.lower() == "a":
+            href = dict(attrs).get("href")
+            if href:
+                self.links.append(href)
+
+
+def request(url: str, *, method: str = "GET") -> urllib.request.Request:
+    return urllib.request.Request(url, method=method, headers={"User-Agent": USER_AGENT})
+
+
+def fetch_text(url: str) -> str:
+    with urllib.request.urlopen(request(url), timeout=60) as response:
+        return response.read().decode("utf-8", errors="replace")
+
+
+def newest_match(base_url: str, pattern: str) -> tuple[str, str]:
+    parser = LinkParser()
+    parser.feed(fetch_text(base_url))
+    matcher = re.compile(pattern)
+    matches = {
+        Path(urllib.parse.urlparse(href).path).name
+        for href in parser.links
+        if matcher.fullmatch(Path(urllib.parse.urlparse(href).path).name)
+    }
+    if not matches:
+        raise RuntimeError(f"no file matches {pattern!r} at {base_url}")
+    name = sorted(matches)[-1]
+    return name, urllib.parse.urljoin(base_url, name)
+
+
+def remote_size(url: str) -> int | None:
+    try:
+        with urllib.request.urlopen(request(url, method="HEAD"), timeout=60) as response:
+            value = response.headers.get("Content-Length")
+            return int(value) if value and value.isdigit() else None
+    except (urllib.error.URLError, TimeoutError, ValueError):
+        return None
+
+
+def expected_sha256(url: str) -> str | None:
+    try:
+        text = fetch_text(url + ".sha256")
+    except (urllib.error.URLError, TimeoutError):
+        return None
+    match = re.search(r"\b([0-9a-fA-F]{64})\b", text)
+    return match.group(1).lower() if match else None
+
+
+def file_sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as stream:
+        for chunk in iter(lambda: stream.read(16 * 1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def write_json(path: Path, payload: dict[str, object]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with tempfile.NamedTemporaryFile(
+        "w", encoding="utf-8", dir=path.parent, delete=False
+    ) as stream:
+        json.dump(payload, stream, indent=2)
+        stream.write("\n")
+        temporary = Path(stream.name)
+    temporary.chmod(0o644)
+    temporary.replace(path)
+
+
+def set_progress(
+    stage: str,
+    label: str,
+    filename: str,
+    index: int,
+    total: int,
+    expected_bytes: int | None,
+) -> None:
+    write_json(
+        PROGRESS,
+        {
+            "state": "downloading",
+            "stage": stage,
+            "label": label,
+            "filename": filename,
+            "item": index,
+            "total": total,
+            "expectedBytes": expected_bytes or 0,
+        },
+    )
+
+
+def zim_header_valid(path: Path) -> bool:
+    try:
+        with path.open("rb") as stream:
+            return stream.read(4) == b"ZIM\x04"
+    except OSError:
+        return False
+
+
+def already_verified(path: Path, checksum: str | None, size: int | None) -> bool:
+    if not path.exists() or Path(str(path) + ".aria2").exists():
+        return False
+    if path.stat().st_size < 1024 * 1024 or not zim_header_valid(path):
+        return False
+    if size is not None and path.stat().st_size != size:
+        return False
+    marker = Path(str(path) + ".verified")
+    marker_value = f"{path.stat().st_size}:{checksum or 'size'}"
+    if marker.exists() and marker.read_text(encoding="utf-8").strip() == marker_value:
+        return True
+    if checksum and file_sha256(path) != checksum:
+        return False
+    marker.write_text(marker_value + "\n", encoding="utf-8")
+    return True
+
+
+def require_space(target: Path, size: int | None) -> None:
+    free = shutil.disk_usage(DESTINATION).free
+    reserve = RESERVE_GIB * 1024**3
+    partial = target.stat().st_size if target.exists() else 0
+    remaining = max(0, size - partial) if size is not None else 8 * 1024**3
+    if free - remaining < reserve:
+        raise RuntimeError(
+            f"protected {RESERVE_GIB} GiB reserve would be crossed "
+            f"(free {free / 1024**3:.1f} GiB; need {remaining / 1024**3:.1f} GiB)"
+        )
+
+
+def download(url: str, destination: Path) -> None:
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    subprocess.run(
+        [
+            "aria2c",
+            "--continue=true",
+            "--max-connection-per-server=4",
+            "--split=4",
+            "--min-split-size=16M",
+            "--file-allocation=none",
+            "--summary-interval=30",
+            f"--user-agent={USER_AGENT}",
+            f"--dir={destination.parent}",
+            f"--out={destination.name}",
+            url,
+        ],
+        check=True,
+    )
+
+
+def selected(row_profile: str, requested_profile: str, collection: str) -> bool:
+    manifest_profile = "full" if requested_profile in {"sd256", "sd512"} else requested_profile
+    if manifest_profile not in {item.strip() for item in row_profile.split("|")}:
+        return False
+    return collection not in PROFILE_EXCLUSIONS.get(requested_profile, set())
+
+
+def main() -> int:
+    profile = sys.argv[1] if len(sys.argv) > 1 else "full"
+    plan_only = "--plan" in sys.argv[2:]
+    if os.geteuid() != 0 and not plan_only:
+        print("Run with sudo.", file=sys.stderr)
+        return 2
+    if profile not in PROFILES:
+        print("Profile must be core, sd256, sd512, or full.", file=sys.stderr)
+        return 2
+    if not MANIFEST.exists():
+        print(f"Missing manifest: {MANIFEST}", file=sys.stderr)
+        return 2
+
+    if not plan_only:
+        DESTINATION.mkdir(parents=True, exist_ok=True)
+    with MANIFEST.open(newline="", encoding="utf-8") as stream:
+        rows = [
+            row
+            for row in csv.DictReader(stream)
+            if selected(row["profile"], profile, row["collection"].strip())
+        ]
+
+    if plan_only:
+        print(f"Profile plan: {profile}")
+    else:
+        print(
+            f"Profile: {profile}; free space: {shutil.disk_usage(DESTINATION).free / 1024**3:.1f} GiB; "
+            f"protected reserve: {RESERVE_GIB} GiB"
+        )
+    failures: list[tuple[str, bool, str]] = []
+    installed = 0
+    planned_bytes = 0
+    for index, row in enumerate(rows, start=1):
+        required = row["required"].strip().lower() == "true"
+        label = row["collection"].strip()
+        try:
+            filename, url = newest_match(row["base_url"], row["pattern"])
+            target = DESTINATION / filename
+            checksum = expected_sha256(url)
+            size = remote_size(url)
+            planned_bytes += size or 0
+            if plan_only:
+                size_text = f"{size / 1024**3:.1f} GiB" if size is not None else "size unknown"
+                print(f"PLAN {label}: {filename} ({size_text})")
+                installed += 1
+                continue
+            set_progress("kiwix", label, filename, index, len(rows), size)
+            if already_verified(target, checksum, size):
+                print(f"OK (verified): {filename}")
+                installed += 1
+                continue
+            require_space(target, size)
+            print(f"Downloading {label}: {filename}")
+            download(url, target)
+            if not already_verified(target, checksum, size):
+                raise RuntimeError("downloaded archive failed size, header, or SHA-256 validation")
+            print(f"Verified: {filename}")
+            installed += 1
+        except Exception as error:
+            failures.append((label, required, str(error)))
+            print(f"FAILED {label}: {error}", file=sys.stderr)
+
+    if plan_only:
+        print(f"Planned known size: {planned_bytes / 1024**3:.1f} GiB")
+    else:
+        subprocess.run(["/usr/local/sbin/prepper-reindex"], check=True)
+        subprocess.run(["systemctl", "restart", "prepper-kiwix.service"], check=False)
+    required_failures = [item for item in failures if item[1]]
+    if not plan_only:
+        write_json(
+            RESULT,
+            {
+                "profile": profile,
+                "expected": len(rows),
+                "installed": installed,
+                "failed": len(failures),
+                "requiredFailed": len(required_failures),
+                "failures": [
+                    {"collection": label, "required": required, "message": message}
+                    for label, required, message in failures
+                ],
+            },
+        )
+    if failures:
+        print("\nDownload summary:", file=sys.stderr)
+        for label, required, message in failures:
+            kind = "required" if required else "optional"
+            print(f"- {label} ({kind}): {message}", file=sys.stderr)
+    return 1 if required_failures else 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

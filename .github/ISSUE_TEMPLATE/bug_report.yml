@@ -1,0 +1,46 @@
+name: Installation or runtime problem
+description: Report a reproducible problem with the image, installer, hotspot, portal, or content download.
+title: "[Bug]: "
+labels: [bug]
+body:
+  - type: dropdown
+    id: pi
+    attributes:
+      label: Raspberry Pi model
+      options:
+        - Raspberry Pi 3 Model B/B+
+        - Raspberry Pi 4 Model B
+        - Raspberry Pi 5 Model B
+        - Other
+    validations:
+      required: true
+  - type: dropdown
+    id: edition
+    attributes:
+      label: Image edition
+      options:
+        - 256 GB
+        - 512 GB
+        - 1 TB
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: What happened?
+      description: Describe what you expected, what happened, and the last successful step.
+    validations:
+      required: true
+  - type: textarea
+    id: hardware
+    attributes:
+      label: Storage and power hardware
+      description: Include the card/SSD, adapter, case, and power-supply ratings.
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant log output
+      description: Paste the last 30–100 lines. Remove private information and never include replacement passwords.
+      render: shell

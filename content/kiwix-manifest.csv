@@ -1,0 +1,45 @@
+profile,required,collection,base_url,pattern,description
+core|full,true,wikem,https://download.kiwix.org/zim/other/,wikem_en_all_maxi_[0-9]{4}-[0-9]{2}[a-z]?\.zim,Emergency medicine reference for trained users
+core|full,true,field-medicine,https://download.kiwix.org/zim/other/,zimgit-medicine_en_[0-9]{4}-[0-9]{2}[a-z]?\.zim,Curated offline field medicine collection
+core|full,true,field-water,https://download.kiwix.org/zim/other/,zimgit-water_en_[0-9]{4}-[0-9]{2}[a-z]?\.zim,Curated water treatment and supply collection
+core|full,true,field-food,https://download.kiwix.org/zim/other/,zimgit-food-preparation_en_[0-9]{4}-[0-9]{2}[a-z]?\.zim,Curated food preparation and preservation collection
+core|full,true,field-knots,https://download.kiwix.org/zim/other/,zimgit-knots_en_[0-9]{4}-[0-9]{2}[a-z]?\.zim,Practical knots and ropework
+core|full,true,post-disaster,https://download.kiwix.org/zim/other/,zimgit-post-disaster_en_[0-9]{4}-[0-9]{2}[a-z]?\.zim,Post-disaster recovery field references
+core|full,true,medicine,https://download.kiwix.org/zim/wikipedia/,wikipedia_en_medicine_maxi_[0-9]{4}-[0-9]{2}[a-z]?\.zim,Medical Wikipedia collection
+core,true,wikipedia,https://download.kiwix.org/zim/wikipedia/,wikipedia_en_all_mini_[0-9]{4}-[0-9]{2}[a-z]?\.zim,English Wikipedia compact edition
+full,true,wikipedia,https://download.kiwix.org/zim/wikipedia/,wikipedia_en_all_maxi_[0-9]{4}-[0-9]{2}[a-z]?\.zim,Complete illustrated English Wikipedia
+full,true,appropedia,https://download.kiwix.org/zim/other/,appropedia_en_all_maxi_[0-9]{4}-[0-9]{2}[a-z]?\.zim,Appropriate technology sustainability and resilient construction
+full,true,energypedia,https://download.kiwix.org/zim/other/,energypedia_en_all_maxi_[0-9]{4}-[0-9]{2}[a-z]?\.zim,Renewable energy access and practical energy systems
+full,true,gardenology,https://download.kiwix.org/zim/other/,gardenology\.org_en_all_[0-9]{4}-[0-9]{2}[a-z]?\.zim,Gardening and plant cultivation encyclopedia
+core|full,true,ready-gov,https://download.kiwix.org/zim/zimit/,www\.ready\.gov_en_[0-9]{4}-[0-9]{2}[a-z]?\.zim,Official FEMA preparedness and hazard guidance
+core|full,true,medlineplus,https://download.kiwix.org/zim/zimit/,medlineplus\.gov_en_all_[0-9]{4}-[0-9]{2}[a-z]?\.zim,NIH consumer health conditions tests and treatments
+core|full,true,nhs-medicines,https://download.kiwix.org/zim/zimit/,nhs\.uk_en_medicines_[0-9]{4}-[0-9]{2}[a-z]?\.zim,NHS medicine use and safety information
+core|full,true,cdc-infectious-disease,https://download.kiwix.org/zim/zimit/,wwwnc\.cdc\.gov_en_all_[0-9]{4}-[0-9]{2}[a-z]?\.zim,CDC infectious disease and travel health reference
+core|full,false,military-medicine,https://download.kiwix.org/zim/zimit/,irp\.fas\.org_en_military-medicine_[0-9]{4}-[0-9]{2}[a-z]?\.zim,Historical US military medicine manuals for reference alongside current medical guidance
+full,true,cd3wd,https://download.kiwix.org/zim/zimit/,cd3wdproject\.org_en_all_[0-9]{4}-[0-9]{2}[a-z]?\.zim,Agriculture water sanitation food and appropriate technology manuals
+full,false,low-tech-magazine,https://download.kiwix.org/zim/zimit/,solar\.lowtechmagazine\.com_mul_all_[0-9]{4}-[0-9]{2}[a-z]?\.zim,Low-energy technology and resilient infrastructure articles
+full,false,army-publications,https://download.kiwix.org/zim/zimit/,armypubs_en_all_[0-9]{4}-[0-9]{2}[a-z]?\.zim,US Army field manuals covering logistics engineering leadership and field operations
+full,false,open-textbooks,https://download.kiwix.org/zim/zimit/,milneopentextbooks\.org_en_all_[0-9]{4}-[0-9]{2}[a-z]?\.zim,Open textbooks spanning science trades economics and civic knowledge
+core|full,false,wikibooks,https://download.kiwix.org/zim/wikibooks/,wikibooks_en_all_maxi_[0-9]{4}-[0-9]{2}[a-z]?\.zim,Wikibooks practical and educational texts
+core|full,false,wiktionary,https://download.kiwix.org/zim/wiktionary/,wiktionary_en_all_nopic_[0-9]{4}-[0-9]{2}[a-z]?\.zim,English Wiktionary
+core|full,false,wikivoyage,https://download.kiwix.org/zim/wikivoyage/,wikivoyage_en_all_maxi_[0-9]{4}-[0-9]{2}[a-z]?\.zim,Wikivoyage geographic reference
+full,false,wikiversity,https://download.kiwix.org/zim/wikiversity/,wikiversity_en_all_maxi_[0-9]{4}-[0-9]{2}[a-z]?\.zim,Wikiversity learning materials
+core|full,false,ifixit,https://download.kiwix.org/zim/ifixit/,ifixit_en_all_[0-9]{4}-[0-9]{2}[a-z]?\.zim,iFixit repair guides
+full,false,stack-diy,https://download.kiwix.org/zim/stack_exchange/,diy\.stackexchange\.com_en_all_[0-9]{4}-[0-9]{2}[a-z]?\.zim,Home improvement questions and answers
+full,false,stack-electronics,https://download.kiwix.org/zim/stack_exchange/,electronics\.stackexchange\.com_en_all_[0-9]{4}-[0-9]{2}[a-z]?\.zim,Electronics questions and answers
+full,false,stack-engineering,https://download.kiwix.org/zim/stack_exchange/,engineering\.stackexchange\.com_en_all_[0-9]{4}-[0-9]{2}[a-z]?\.zim,Engineering questions and answers
+full,false,stack-gardening,https://download.kiwix.org/zim/stack_exchange/,gardening\.stackexchange\.com_en_all_[0-9]{4}-[0-9]{2}[a-z]?\.zim,Gardening questions and answers
+full,false,stack-outdoors,https://download.kiwix.org/zim/stack_exchange/,outdoors\.stackexchange\.com_en_all_[0-9]{4}-[0-9]{2}[a-z]?\.zim,Backcountry travel and outdoor skills
+full,false,stack-mechanics,https://download.kiwix.org/zim/stack_exchange/,mechanics\.stackexchange\.com_en_all_[0-9]{4}-[0-9]{2}[a-z]?\.zim,Vehicle and engine maintenance
+full,false,stack-woodworking,https://download.kiwix.org/zim/stack_exchange/,woodworking\.stackexchange\.com_en_all_[0-9]{4}-[0-9]{2}[a-z]?\.zim,Woodworking tools joints and construction
+full,false,stack-cooking,https://download.kiwix.org/zim/stack_exchange/,cooking\.stackexchange\.com_en_all_[0-9]{4}-[0-9]{2}[a-z]?\.zim,Cooking food safety and kitchen technique
+full,false,stack-homebrew,https://download.kiwix.org/zim/stack_exchange/,homebrew\.stackexchange\.com_en_all_[0-9]{4}-[0-9]{2}[a-z]?\.zim,Fermentation and brewing questions and answers
+full,false,stack-ham-radio,https://download.kiwix.org/zim/stack_exchange/,ham\.stackexchange\.com_en_all_[0-9]{4}-[0-9]{2}[a-z]?\.zim,Amateur radio and emergency communications
+full,false,stack-sustainability,https://download.kiwix.org/zim/stack_exchange/,sustainability\.stackexchange\.com_en_all_[0-9]{4}-[0-9]{2}[a-z]?\.zim,Sustainable systems and resource use
+full,false,stack-bicycles,https://download.kiwix.org/zim/stack_exchange/,bicycles\.stackexchange\.com_en_all_[0-9]{4}-[0-9]{2}[a-z]?\.zim,Bicycle repair and human-powered transport
+full,false,stack-chemistry,https://download.kiwix.org/zim/stack_exchange/,chemistry\.stackexchange\.com_en_all_[0-9]{4}-[0-9]{2}[a-z]?\.zim,Chemistry concepts and laboratory practice
+full,false,stack-physics,https://download.kiwix.org/zim/stack_exchange/,physics\.stackexchange\.com_en_all_[0-9]{4}-[0-9]{2}[a-z]?\.zim,Physics concepts and applied problem solving
+full,false,stack-earth-science,https://download.kiwix.org/zim/stack_exchange/,earthscience\.stackexchange\.com_en_all_[0-9]{4}-[0-9]{2}[a-z]?\.zim,Weather geology climate and earth science
+full,false,survivor-library,https://download.kiwix.org/zim/zimit/,survivorlibrary\.com_en_all_[0-9]{4}-[0-9]{2}[a-z]?\.zim,Large historical library of agriculture trades engineering and self-reliance books
+full,false,khan-academy,https://download.kiwix.org/zim/other/,khanacademy_en_all_[0-9]{4}-[0-9]{2}[a-z]?\.zim,Full Khan Academy mathematics science economics and computing
+full,false,gutenberg,https://download.kiwix.org/zim/gutenberg/,gutenberg_en_all_[0-9]{4}-[0-9]{2}[a-z]?\.zim,Project Gutenberg English books

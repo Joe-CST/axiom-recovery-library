@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#20272b">
+  <title>Costa Axiom Offline Knowledge Library</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+
+  <nav class="site-nav" aria-label="Main navigation">
+    <a class="brand" href="/" aria-current="page" aria-label="Costa Axiom home"><img class="brand-logo" src="/costa-logo.png" alt="Costa"></a>
+    <div class="nav-links">
+      <a href="/guide.html">Start here</a>
+      <a href="/library.html">Library</a>
+      <a href="/maps/">Maps</a>
+    </div>
+  </nav>
+
+  <header class="hero">
+    <div class="hero-copy">
+      <p class="eyebrow">LOCAL · PRIVATE · WORKS OFFLINE</p>
+      <h1>Knowledge for rebuilding</h1>
+      <p class="lede">Practical references for immediate survival, health, water, food production, shelter, power, repair, and community recovery—served directly by this Raspberry Pi.</p>
+      <div class="actions">
+        <a class="button urgent" href="/guide.html">Start with urgent needs</a>
+        <a class="button primary" href="/library.html">Explore all topics</a>
+        <a class="button secondary" id="open-kiwix" data-kiwix href="#">Search every archive</a>
+      </div>
+    </div>
+
+    <details class="connection-card">
+      <summary>Connection help</summary>
+      <div class="connection-details">
+        <img src="/wifi-qr.png" alt="QR code for connecting to the Axiom Wi-Fi network" width="180" height="180">
+        <div>
+          <strong>Emergency address</strong>
+          <code>http://10.10.10.1</code>
+          <span>Bookmark this exact address. It works without internet or DNS.</span>
+        </div>
+      </div>
+    </details>
+  </header>
+
+  <main id="main-content">
+    <section class="quick-start" aria-labelledby="quick-heading">
+      <div>
+        <p class="eyebrow">FIRST DECISIONS</p>
+        <h2 id="quick-heading">What do you need right now?</h2>
+      </div>
+      <div class="quick-grid">
+        <a href="/library.html?q=first%20aid"><span aria-hidden="true">✚</span><strong>Injury or illness</strong><small>First aid, triage, sanitation</small></a>
+        <a href="/library.html?q=drinking%20water"><span aria-hidden="true">≈</span><strong>Safe water</strong><small>Find, treat, store</small></a>
+        <a href="/library.html?q=emergency%20shelter"><span aria-hidden="true">⌂</span><strong>Shelter</strong><small>Assess, build, heat safely</small></a>
+        <a href="/library.html?category=agriculture"><span aria-hidden="true">⌁</span><strong>Food</strong><small>Plan, grow, harvest, preserve</small></a>
+      </div>
+    </section>
+
+    <section class="status-panel" aria-labelledby="status-heading">
+      <div>
+        <p class="eyebrow">SYSTEM CHECK</p>
+        <h2 id="status-heading">Library status</h2>
+      </div>
+      <div class="status-grid" id="status-grid" aria-live="polite" aria-busy="true">
+        <span>Loading local status…</span>
+      </div>
+    </section>
+
+    <section aria-labelledby="collections-heading">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">KNOWLEDGE COLLECTIONS</p>
+          <h2 id="collections-heading">Learn by practical goal</h2>
+        </div>
+        <a class="text-link" href="/library.html">See every topic <span aria-hidden="true">→</span></a>
+      </div>
+      <div class="grid">
+        <a class="card accent-red" href="/library.html?category=medical">
+          <span class="icon" aria-hidden="true">✚</span><h3>Medical & first aid</h3>
+          <p>Immediate care, wounds, common illness, medicines, dental, maternal health, hygiene, and public health.</p>
+        </a>
+        <a class="card accent-blue" href="/library.html?category=water">
+          <span class="icon" aria-hidden="true">≈</span><h3>Water & sanitation</h3>
+          <p>Finding, collecting, testing, treating, storing, pumping, and safely disposing of waste.</p>
+        </a>
+        <a class="card accent-green" href="/library.html?category=agriculture">
+          <span class="icon" aria-hidden="true">⌁</span><h3>Food & agriculture</h3>
+          <p>Crop planning, soil, seeds, irrigation, pests, livestock, harvest, nutrition, cooking, and preservation.</p>
+        </a>
+        <a class="card accent-brown" href="/library.html?category=shelter">
+          <span class="icon" aria-hidden="true">⌂</span><h3>Shelter & construction</h3>
+          <p>Site choice, emergency shelter, carpentry, masonry, roofing, insulation, heating, and fire safety.</p>
+        </a>
+        <a class="card accent-yellow" href="/library.html?category=energy">
+          <span class="icon" aria-hidden="true">ϟ</span><h3>Power & machinery</h3>
+          <p>Energy planning, solar, wind, hydro, generators, batteries, motors, engines, pumps, and workshop skills.</p>
+        </a>
+        <a class="card accent-teal" href="/library.html?category=tools">
+          <span class="icon" aria-hidden="true">⚒</span><h3>Repair & fabrication</h3>
+          <p>Tools, salvage, mechanical repair, electronics, metalwork, woodworking, textiles, and practical making.</p>
+        </a>
+        <a class="card accent-orange" href="/maps/">
+          <span class="icon" aria-hidden="true">⌖</span><h3>Offline maps</h3>
+          <p>Street-level maps for the United States, Puerto Rico, Canada, Mexico, and U.S. territories.</p>
+        </a>
+        <a class="card accent-purple" href="/library.html?category=community">
+          <span class="icon" aria-hidden="true">◉</span><h3>Community & society</h3>
+          <p>Organization, communication, public health, education, records, conflict resolution, logistics, and trade.</p>
+        </a>
+        <a class="card accent-gray" href="/library.html?category=education">
+          <span class="icon" aria-hidden="true">◎</span><h3>Science & education</h3>
+          <p>Mathematics, chemistry, biology, engineering, radiation safety, and foundational learning.</p>
+        </a>
+      </div>
+    </section>
+
+    <section class="notice" aria-labelledby="offline-heading">
+      <div>
+        <p class="eyebrow">IF YOUR IPHONE SAYS “NO INTERNET”</p>
+        <h2 id="offline-heading">Stay connected anyway</h2>
+      </div>
+      <ol>
+        <li>In Wi-Fi settings, select <strong>Axiom</strong> and choose to keep using the network.</li>
+        <li>Open Safari and type <code>http://10.10.10.1</code>.</li>
+        <li>Use <code>http://</code>, not <code>https://</code>. This library is physically local to the Pi.</li>
+        <li>For one-tap access, use Safari’s Share button and choose <strong>Add to Home Screen</strong>.</li>
+      </ol>
+    </section>
+
+    <section class="safety" aria-labelledby="safety-heading">
+      <strong id="safety-heading">Use sound judgment.</strong>
+      <p>This library is a reference, not a substitute for qualified medical, structural, electrical, or radiation-safety professionals. Confirm critical instructions in more than one reputable source when possible. Never back-feed an electrical grid. Nuclear material is educational and does not make a household reactor or radioisotope generator safe or lawful.</p>
+    </section>
+  </main>
+
+  <footer>
+    <span>Costa · Axiom Offline Recovery Library</span>
+    <span id="host-label">Local server</span>
+  </footer>
+  <script src="/app.js"></script>
+</body>
+</html>

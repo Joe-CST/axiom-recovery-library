@@ -1,0 +1,21 @@
+Offline map third-party components
+==================================
+
+Map data: OpenStreetMap contributors, Open Database License (ODbL).
+Basemap tiles and style: Protomaps, BSD 3-Clause; the produced map archive
+requires OpenStreetMap attribution.
+PMTiles JavaScript 4.5.0 and CLI 1.31.2: Protomaps, BSD 3-Clause.
+MapLibre GL JS 6.14.0: MapLibre contributors, BSD 3-Clause.
+Noto Sans fonts: SIL Open Font License.
+Basemap sprites: derived from MIT-licensed Tangrams icons.
+
+Source and license information:
+https://www.openstreetmap.org/copyright
+https://github.com/protomaps/basemaps
+https://github.com/protomaps/PMTiles
+https://github.com/maplibre/maplibre-gl-js
+https://github.com/protomaps/basemaps-assets
+
+Vendored package versions and source hashes are recorded in the project
+README. Map data is downloaded during installation and is not redistributed
+inside the small autoinstall image.

@@ -1,0 +1,33 @@
+COSTA AXIOM RECOVERY LIBRARY v1.7
+================================
+
+Choose the image matching the card or SSD:
+
+- 256 GB: maps, 54 manuals, illustrated Wikipedia, medical, agriculture,
+  power, repair, communications, and practical collections. No Wiktionary,
+  Wikiversity, Survivor Library, Khan Academy, or Project Gutenberg.
+- 512 GB: everything above plus Wiktionary, Wikiversity, and Survivor Library.
+  No Khan Academy or Project Gutenberg.
+- 1 TB: the complete collection, including Khan Academy and Project Gutenberg.
+
+All three support Raspberry Pi 3 Model B/B+, Pi 4 Model B, and Pi 5 Model B.
+Pi 3 is slower and uses fewer Kiwix threads to fit its 1 GB RAM.
+
+Shortest path:
+
+1. Verify the supplied SHA-256 file.
+2. Flash the selected .img.xz with Raspberry Pi Imager using "Use custom".
+3. Do not apply Imager OS customisation.
+4. Connect wired Ethernet and stable power, then boot the Pi.
+5. Leave it running until PREPPER_READY.txt appears on the boot partition.
+   Downloads resume automatically after a reboot or network interruption.
+6. Connect a phone to Axiom and open http://10.10.10.1.
+
+Passwords are in the credentials file supplied beside each image. SSH password
+login is enabled for user prepper; direct root login is disabled. The hotspot
+shares wired internet while Ethernet is connected and continues serving the
+offline library when internet is unavailable.
+
+See README.md for the complete feature table, estimates, troubleshooting, and
+offline acceptance test. Nuclear material is educational safety and principles
+content, not a DIY reactor construction guide.

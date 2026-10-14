@@ -1,0 +1,204 @@
+#!/usr/bin/env python3
+"""Build the phone-friendly local resource catalog from installed content."""
+
+from __future__ import annotations
+
+import csv
+import json
+import re
+import tempfile
+from datetime import datetime, timezone
+from pathlib import Path
+
+CONFIG = Path("/etc/prepper-library/config.env")
+DOCUMENTS_MANIFEST = Path("/etc/prepper-library/documents-manifest.csv")
+KIWIX_MANIFEST = Path("/etc/prepper-library/kiwix-manifest.csv")
+DOCUMENTS = Path("/srv/prepper-library/manuals")
+KIWIX = Path("/srv/prepper-library/kiwix")
+OUTPUT = Path("/usr/share/prepper-portal/catalog.json")
+
+CATEGORY_LABELS = {
+    "medical": "First aid & medical",
+    "water": "Water & sanitation",
+    "agriculture": "Growing food",
+    "food": "Food processing & storage",
+    "shelter": "Shelter & construction",
+    "energy": "Power & machinery",
+    "tools": "Tools, repair & materials",
+    "communications": "Communications",
+    "navigation": "Navigation & weather",
+    "community": "Community & governance",
+    "preparedness": "Preparedness & recovery",
+    "nuclear": "Radiation & nuclear safety",
+    "education": "Education & science",
+}
+
+COLLECTION_CATEGORIES = {
+    "wikem": "medical",
+    "field-medicine": "medical",
+    "medicine": "medical",
+    "medlineplus": "medical",
+    "nhs-medicines": "medical",
+    "cdc-infectious-disease": "medical",
+    "military-medicine": "medical",
+    "field-water": "water",
+    "field-food": "food",
+    "field-knots": "tools",
+    "post-disaster": "preparedness",
+    "ready-gov": "preparedness",
+    "appropedia": "shelter",
+    "energypedia": "energy",
+    "gardenology": "agriculture",
+    "cd3wd": "agriculture",
+    "low-tech-magazine": "energy",
+    "army-publications": "preparedness",
+    "open-textbooks": "education",
+    "wikipedia": "education",
+    "wikibooks": "education",
+    "wiktionary": "education",
+    "wikivoyage": "navigation",
+    "wikiversity": "education",
+    "ifixit": "tools",
+    "stack-diy": "shelter",
+    "stack-electronics": "energy",
+    "stack-engineering": "energy",
+    "stack-gardening": "agriculture",
+    "stack-outdoors": "shelter",
+    "stack-mechanics": "tools",
+    "stack-woodworking": "shelter",
+    "stack-cooking": "food",
+    "stack-homebrew": "food",
+    "stack-ham-radio": "communications",
+    "stack-sustainability": "community",
+    "stack-bicycles": "tools",
+    "stack-chemistry": "education",
+    "stack-physics": "education",
+    "stack-earth-science": "navigation",
+    "survivor-library": "preparedness",
+    "khan-academy": "education",
+    "gutenberg": "education",
+}
+
+PROFILES = {"core", "sd256", "sd512", "full"}
+PROFILE_EXCLUSIONS = {
+    "sd256": {"wiktionary", "wikiversity", "survivor-library", "khan-academy", "gutenberg"},
+    "sd512": {"khan-academy", "gutenberg"},
+}
+
+
+def selected(row_profile: str, profile: str, collection: str | None = None) -> bool:
+    manifest_profile = "full" if profile in {"sd256", "sd512"} else profile
+    if manifest_profile not in {item.strip() for item in row_profile.split("|")}:
+        return False
+    return collection is None or collection not in PROFILE_EXCLUSIONS.get(profile, set())
+
+
+def configured_profile() -> str:
+    if CONFIG.exists():
+        match = re.search(r"^CONTENT_PROFILE=(.+)$", CONFIG.read_text(encoding="utf-8"), re.M)
+        if match and match.group(1).strip() in PROFILES:
+            return match.group(1).strip()
+    return "full"
+
+
+def document_rows(profile: str) -> list[dict[str, object]]:
+    items: list[dict[str, object]] = []
+    with DOCUMENTS_MANIFEST.open(newline="", encoding="utf-8") as stream:
+        for row in csv.DictReader(stream):
+            if not selected(row["profile"], profile):
+                continue
+            category = row["category"].strip()
+            filename = row["filename"].strip()
+            path = DOCUMENTS / category / filename
+            items.append(
+                {
+                    "type": "document",
+                    "category": category,
+                    "categoryLabel": CATEGORY_LABELS.get(category, category.replace("-", " ").title()),
+                    "title": row.get("title", "").strip() or filename,
+                    "summary": row.get("summary", "").strip(),
+                    "source": row.get("source", "").strip(),
+                    "license": row.get("license", "").strip(),
+                    "required": row.get("required", "false").strip().lower() == "true",
+                    "available": path.is_file() and path.stat().st_size > 1024,
+                    "bytes": path.stat().st_size if path.is_file() else 0,
+                    "href": f"/manuals/{category}/{filename}",
+                    "searchTerms": [
+                        row.get("title", "").strip(),
+                        row.get("summary", "").strip(),
+                        row.get("source", "").strip(),
+                        CATEGORY_LABELS.get(category, category),
+                    ],
+                }
+            )
+    return items
+
+
+def kiwix_rows(profile: str) -> list[dict[str, object]]:
+    local_names = [path.name for path in KIWIX.glob("*.zim")]
+    items: list[dict[str, object]] = []
+    with KIWIX_MANIFEST.open(newline="", encoding="utf-8") as stream:
+        for row in csv.DictReader(stream):
+            collection = row["collection"].strip()
+            if not selected(row["profile"], profile, collection):
+                continue
+            category = COLLECTION_CATEGORIES.get(collection, "education")
+            matcher = re.compile(row["pattern"])
+            matches = sorted(name for name in local_names if matcher.fullmatch(name))
+            size = (KIWIX / matches[-1]).stat().st_size if matches else 0
+            items.append(
+                {
+                    "type": "kiwix",
+                    "category": category,
+                    "categoryLabel": CATEGORY_LABELS.get(category, category.title()),
+                    "title": collection.replace("-", " ").title(),
+                    "summary": row["description"],
+                    "source": "Kiwix/OpenZIM",
+                    "license": "See collection attribution",
+                    "required": row["required"].strip().lower() == "true",
+                    "available": bool(matches),
+                    "bytes": size,
+                    "href": "__KIWIX__",
+                    "historical": collection in {"military-medicine", "survivor-library"},
+                    "searchTerms": [
+                        collection.replace("-", " "),
+                        row["description"],
+                        CATEGORY_LABELS.get(category, category),
+                    ],
+                }
+            )
+    return items
+
+
+def main() -> int:
+    profile = configured_profile()
+    documents = document_rows(profile)
+    collections = kiwix_rows(profile)
+    payload = {
+        "generated": datetime.now(timezone.utc).isoformat(),
+        "profile": profile,
+        "documents": documents,
+        "collections": collections,
+        "availableDocuments": sum(1 for item in documents if item["available"]),
+        "expectedDocuments": len(documents),
+        "availableCollections": sum(1 for item in collections if item["available"]),
+        "expectedCollections": len(collections),
+    }
+    OUTPUT.parent.mkdir(parents=True, exist_ok=True)
+    with tempfile.NamedTemporaryFile(
+        "w", encoding="utf-8", dir=OUTPUT.parent, delete=False
+    ) as stream:
+        json.dump(payload, stream, indent=2)
+        stream.write("\n")
+        temporary = Path(stream.name)
+    temporary.chmod(0o644)
+    temporary.replace(OUTPUT)
+    print(
+        f"Catalog: {payload['availableDocuments']}/{payload['expectedDocuments']} documents; "
+        f"{payload['availableCollections']}/{payload['expectedCollections']} collections"
+    )
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

@@ -1,0 +1,74 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+
+PROFILE="${1:-full}"
+[[ "${PROFILE}" == core || "${PROFILE}" == sd256 || "${PROFILE}" == sd512 || "${PROFILE}" == full ]] || {
+  printf 'Profile must be core, sd256, sd512, or full.\n' >&2
+  exit 2
+}
+
+case "${PROFILE}" in
+  core|sd256) export PREPPER_RESERVE_GIB=24 ;;
+  sd512) export PREPPER_RESERVE_GIB=48 ;;
+  full) export PREPPER_RESERVE_GIB=80 ;;
+esac
+[[ ${EUID} -eq 0 ]] || {
+  printf 'Run with sudo.\n' >&2
+  exit 2
+}
+
+STATE=/var/lib/prepper-library/content-progress.json
+install -d -m 0755 /var/lib/prepper-library
+exec 9>/run/lock/prepper-download-all.lock
+flock -n 9 || {
+  printf 'Another recovery-library download is already running.\n' >&2
+  exit 75
+}
+
+write_state() {
+  local state="$1" stage="$2" label="$3"
+  jq -n \
+    --arg state "${state}" \
+    --arg stage "${stage}" \
+    --arg label "${label}" \
+    --arg timestamp "$(date --iso-8601=seconds)" \
+    '{state:$state,stage:$stage,label:$label,updated:$timestamp}' >"${STATE}.tmp"
+  chmod 0644 "${STATE}.tmp"
+  mv -f "${STATE}.tmp" "${STATE}"
+  /usr/local/sbin/prepper-healthcheck >/dev/null 2>&1 || true
+}
+
+failed() {
+  local code=$?
+  trap - ERR
+  write_state failed "${CURRENT_STAGE:-startup}" "${CURRENT_LABEL:-Content update failed}"
+  exit "${code}"
+}
+trap failed ERR
+
+CURRENT_STAGE=manuals
+CURRENT_LABEL='Downloading lifesaving and practical manuals'
+write_state downloading "${CURRENT_STAGE}" "${CURRENT_LABEL}"
+/usr/local/sbin/prepper-download-documents "${PROFILE}"
+
+CURRENT_STAGE=kiwix
+CURRENT_LABEL='Downloading searchable offline knowledge collections'
+write_state downloading "${CURRENT_STAGE}" "${CURRENT_LABEL}"
+/usr/local/sbin/prepper-download-kiwix "${PROFILE}"
+
+CURRENT_STAGE=maps
+CURRENT_LABEL='Verifying offline maps'
+write_state downloading "${CURRENT_STAGE}" "${CURRENT_LABEL}"
+/usr/local/sbin/prepper-download-maps
+
+CURRENT_STAGE=index
+CURRENT_LABEL='Building the local search catalog'
+write_state downloading "${CURRENT_STAGE}" "${CURRENT_LABEL}"
+/usr/local/sbin/prepper-reindex
+/usr/local/sbin/prepper-build-catalog
+/usr/local/sbin/prepper-healthcheck >/dev/null 2>&1 || true
+
+trap - ERR
+write_state complete complete 'Expanded recovery library is ready'
+touch /var/lib/prepper-library/content-v1.7.complete
+printf 'Expanded recovery library download complete.\n'
