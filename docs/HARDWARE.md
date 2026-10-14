@@ -4,8 +4,7 @@ This page offers a simple budget build and a more durable premium build. Prices
 and product listings change, so the links open Amazon searches instead of
 locking the guide to one seller.
 
-> **Affiliate disclosure:** As an Amazon Associate I earn from qualifying
-> purchases. Every Amazon link on this page is a paid link.
+> **Affiliate disclosure:** As an Amazon Associate I earn from qualifying purchases. Every Amazon link on this page is a paid link.
 
 Verify the seller, electrical ratings, dimensions, and return policy before
 buying.

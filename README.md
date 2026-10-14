@@ -95,8 +95,7 @@ For most people, the best low-cost combination is a **Pi 4 with a 256 GB
 microSD card**. For the full library, use a **Pi 5, active cooling, and a
 premium 1 TB A2/V30 microSD card**.
 
-> **Affiliate disclosure:** As an Amazon Associate I earn from qualifying
-> purchases. The Amazon links below are paid links.
+> **Affiliate disclosure:** As an Amazon Associate I earn from qualifying purchases. The Amazon links below are paid links.
 
 ### Budget build
 
