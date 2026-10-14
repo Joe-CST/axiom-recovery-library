@@ -19,8 +19,10 @@
 ## What this project does
 
 Axiom turns a Raspberry Pi and a large SD card or SSD into a small offline
-knowledge server. The Pi creates its own Wi-Fi network named **Axiom**. Connect
-your phone, open `http://10.10.10.1`, and use:
+knowledge server. Ready-to-flash editions are available for **256GB, 512GB,
+and 1TB** SD cards or SSDs, so you can choose the version that fits your storage
+and the depth of content you want. The Pi creates its own Wi-Fi network named
+**Axiom**. Connect your phone, open `http://10.10.10.1`, and use:
 
 - first-aid, sanitation, food-growing, shelter, repair, power, communications,
   and community-recovery manuals;
@@ -30,9 +32,20 @@ your phone, open `http://10.10.10.1`, and use:
   Alaska, Hawaii, and U.S. territories;
 - a step-by-step recovery guide designed for a phone screen.
 
-When wired Ethernet has internet, the Pi also shares that connection with
-devices on the Axiom Wi-Fi network. When internet is gone, the local library
-keeps working.
+## One box, two jobs: travel router and offline library
+
+> **Axiom is useful every day—not only during a disaster.**
+
+Connect the Pi's Ethernet port to a wired network with internet access and
+Axiom shares that connection with phones, tablets, and computers on its private
+**Axiom** Wi-Fi network. That means the same small device can serve as a handy
+travel router in a hotel, cabin, workshop, RV, or temporary location.
+
+If the internet connection fails—or there is no internet at all—the Axiom
+Wi-Fi network and the entire local knowledge library **keep working**. You can
+still open `http://10.10.10.1`, read the guides, search the offline archives,
+and use the downloaded maps. No cloud service, subscription, or outside
+connection is required for the offline features.
 
 ## 1. Choose the correct download
 
