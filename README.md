@@ -54,9 +54,9 @@ the 512 GB or 1 TB edition on a 256 GB card.
 
 | Edition | Best for | Included content | Download |
 |---|---|---|---|
-| **256 GB** | Lowest-cost complete setup | Maps, 54 manuals, illustrated Wikipedia, medical, agriculture, repair, power, engineering, and practical collections | **[Download 256 GB image](https://github.com/Joe-CST/axiom-recovery-library/releases/download/v1.7.0/Costa-Axiom-Pi3-Pi4-Pi5-256GB-v1.7.0.img.xz)** |
-| **512 GB** | Best balance of cost and depth | Everything in 256 GB, plus Wiktionary, Wikiversity, and the historical Survivor Library | **[Download 512 GB image](https://github.com/Joe-CST/axiom-recovery-library/releases/download/v1.7.0/Costa-Axiom-Pi3-Pi4-Pi5-512GB-v1.7.0.img.xz)** |
-| **1 TB** | Maximum offline library | Everything in 512 GB, plus Khan Academy and Project Gutenberg | **[Download 1 TB image](https://github.com/Joe-CST/axiom-recovery-library/releases/download/v1.7.0/Costa-Axiom-Pi3-Pi4-Pi5-1TB-v1.7.0.img.xz)** |
+| **256 GB** | Lowest-cost complete setup | [OpenStreetMap](https://www.openstreetmap.org/) maps, 54 manuals, illustrated [Wikipedia](https://www.wikipedia.org/), medical, agriculture, repair, power, engineering, and practical collections | **[Download 256 GB image](https://github.com/Joe-CST/axiom-recovery-library/releases/download/v1.7.0/Costa-Axiom-Pi3-Pi4-Pi5-256GB-v1.7.0.img.xz)** |
+| **512 GB** | Best balance of cost and depth | Everything in 256 GB, plus [Wiktionary](https://www.wiktionary.org/), [Wikiversity](https://www.wikiversity.org/), and the historical [Survivor Library](https://www.survivorlibrary.com/) | **[Download 512 GB image](https://github.com/Joe-CST/axiom-recovery-library/releases/download/v1.7.0/Costa-Axiom-Pi3-Pi4-Pi5-512GB-v1.7.0.img.xz)** |
+| **1 TB** | Maximum offline library | Everything in 512 GB, plus [Khan Academy](https://www.khanacademy.org/) and [Project Gutenberg](https://www.gutenberg.org/) | **[Download 1 TB image](https://github.com/Joe-CST/axiom-recovery-library/releases/download/v1.7.0/Costa-Axiom-Pi3-Pi4-Pi5-1TB-v1.7.0.img.xz)** |
 
 The image download is about 579 MiB. It is a compact installer. On first boot,
 the Pi downloads and verifies the selected library. That first setup can take
