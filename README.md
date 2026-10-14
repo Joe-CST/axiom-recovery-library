@@ -95,28 +95,30 @@ For most people, the best low-cost combination is a **Pi 4 with a 256 GB
 microSD card**. For the full library, use a **Pi 5, active cooling, and a
 premium 1 TB A2/V30 microSD card**.
 
+> **Affiliate disclosure:** As an Amazon Associate I earn from qualifying
+> purchases. The Amazon links below are paid links.
+
 ### Budget build
 
-- [Raspberry Pi 4 Model B on Amazon](https://www.amazon.com/s?k=Raspberry+Pi+4+Model+B)
-- **Budget storage:** [256 GB A2/U3 microSD card on Amazon](https://www.amazon.com/s?k=256GB+A2+U3+microSD+card)
-- **Premium storage:** [256 GB high-endurance A2 microSD card on Amazon](https://www.amazon.com/s?k=256GB+high+endurance+A2+microSD+card)
-- [Raspberry Pi 4 case with fan on Amazon](https://www.amazon.com/s?k=Raspberry+Pi+4+case+with+fan)
-- [Official-style 15 W Pi 4 USB-C power supply on Amazon](https://www.amazon.com/s?k=Raspberry+Pi+4+official+15W+USB-C+power+supply)
-- [Ethernet cable on Amazon](https://www.amazon.com/s?k=Cat6+Ethernet+cable)
+- [Raspberry Pi 4 Model B on Amazon (paid link)](https://www.amazon.com/s?k=Raspberry+Pi+4+Model+B&tag=jcostamz-20)
+- **Budget storage:** [256 GB A2/U3 microSD card on Amazon (paid link)](https://www.amazon.com/s?k=256GB+A2+U3+microSD+card&tag=jcostamz-20)
+- **Premium storage:** [256 GB high-endurance A2 microSD card on Amazon (paid link)](https://www.amazon.com/s?k=256GB+high+endurance+A2+microSD+card&tag=jcostamz-20)
+- [Raspberry Pi 4 case with fan on Amazon (paid link)](https://www.amazon.com/s?k=Raspberry+Pi+4+case+with+fan&tag=jcostamz-20)
+- [Official-style 15 W Pi 4 USB-C power supply on Amazon (paid link)](https://www.amazon.com/s?k=Raspberry+Pi+4+official+15W+USB-C+power+supply&tag=jcostamz-20)
+- [Ethernet cable on Amazon (paid link)](https://www.amazon.com/s?k=Cat6+Ethernet+cable&tag=jcostamz-20)
 
 ### Premium build
 
-- [Raspberry Pi 5 8 GB on Amazon](https://www.amazon.com/s?k=Raspberry+Pi+5+8GB)
-- [Pi 5 active-cooling case on Amazon](https://www.amazon.com/s?k=Raspberry+Pi+5+active+cooler+case)
-- [Official 27 W Pi 5 power supply on Amazon](https://www.amazon.com/s?k=Raspberry+Pi+5+official+27W+power+supply)
-- **Budget storage:** [1 TB A2/U3 microSD card on Amazon](https://www.amazon.com/s?k=1TB+A2+U3+microSD+card)
-- **Premium storage:** [1 TB A2/V30 microSD card from a recognized manufacturer on Amazon](https://www.amazon.com/s?k=1TB+A2+V30+microSD+card+SanDisk+Lexar+Kingston)
-- [Ethernet cable on Amazon](https://www.amazon.com/s?k=Cat6+Ethernet+cable)
+- [Raspberry Pi 5 8 GB on Amazon (paid link)](https://www.amazon.com/s?k=Raspberry+Pi+5+8GB&tag=jcostamz-20)
+- [Pi 5 active-cooling case on Amazon (paid link)](https://www.amazon.com/s?k=Raspberry+Pi+5+active+cooler+case&tag=jcostamz-20)
+- [Official 27 W Pi 5 power supply on Amazon (paid link)](https://www.amazon.com/s?k=Raspberry+Pi+5+official+27W+power+supply&tag=jcostamz-20)
+- **Budget storage:** [1 TB A2/U3 microSD card on Amazon (paid link)](https://www.amazon.com/s?k=1TB+A2+U3+microSD+card&tag=jcostamz-20)
+- **Premium storage:** [1 TB A2/V30 microSD card from a recognized manufacturer on Amazon (paid link)](https://www.amazon.com/s?k=1TB+A2+V30+microSD+card+SanDisk+Lexar+Kingston&tag=jcostamz-20)
+- [Ethernet cable on Amazon (paid link)](https://www.amazon.com/s?k=Cat6+Ethernet+cable&tag=jcostamz-20)
 
 Want solar backup and protected storage? See the
 [budget, premium, solar, battery, and weather-resistant hardware guide](docs/HARDWARE.md).
-These are ordinary Amazon links, not affiliate links in this release. Prices
-and sellers change; verify compatibility before buying.
+Prices and sellers change; verify compatibility before buying.
 
 ## 3. Flash the image
 
