@@ -14,6 +14,7 @@
   <img alt="Raspberry Pi" src="https://img.shields.io/badge/Raspberry%20Pi-3B%2FB%2B%20%7C%204B%20%7C%205B-c51a4a">
   <img alt="Works offline" src="https://img.shields.io/badge/works-offline-1f9d72">
   <img alt="Phone friendly" src="https://img.shields.io/badge/phone-friendly-6d5bd0">
+  <a href="https://www.linkedin.com/in/jose-armando-costa"><img alt="Jose Armando Costa on LinkedIn" src="https://img.shields.io/badge/LinkedIn-Jose%20Armando%20Costa-0A66C2?logo=linkedin&amp;logoColor=white"></a>
 </p>
 
 ## What this project does
@@ -214,4 +215,14 @@ including complete compressed-image decompression and SHA-256 comparison. The
 mobile portal is tested at iPhone width. Physical hardware can vary, so test one
 complete first boot before preparing multiple cards.
 
-Built and maintained by [Joe-CST](https://github.com/Joe-CST).
+## About the creator
+
+**Costa Axiom Recovery Library** is an independent project created and
+maintained by [Jose Armando Costa](https://www.linkedin.com/in/jose-armando-costa),
+a **Senior Software Development Manager at Amazon Web Services (AWS)**.
+
+- [Connect with Jose on LinkedIn](https://www.linkedin.com/in/jose-armando-costa)
+- [See more projects from Joe-CST on GitHub](https://github.com/Joe-CST)
+
+This is a personal, independent project. It is not sponsored by, affiliated
+with, or endorsed by Amazon or AWS.
